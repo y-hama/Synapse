@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Components", "Components\Components.csproj", "{F21DB679-6170-4DD2-AC41-CF7CA1F5485D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Connectome", "Connectome\Connectome.csproj", "{2E9FF6BF-9B7D-4EF7-98CC-74CC42E6CBFD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConnectomeVisualizer", "ConnectomeVisualizer\ConnectomeVisualizer.csproj", "{9990F5DC-B0DC-4147-8040-BE0527F3F65C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F21DB679-6170-4DD2-AC41-CF7CA1F5485D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F21DB679-6170-4DD2-AC41-CF7CA1F5485D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F21DB679-6170-4DD2-AC41-CF7CA1F5485D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F21DB679-6170-4DD2-AC41-CF7CA1F5485D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E9FF6BF-9B7D-4EF7-98CC-74CC42E6CBFD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E9FF6BF-9B7D-4EF7-98CC-74CC42E6CBFD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E9FF6BF-9B7D-4EF7-98CC-74CC42E6CBFD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E9FF6BF-9B7D-4EF7-98CC-74CC42E6CBFD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9990F5DC-B0DC-4147-8040-BE0527F3F65C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9990F5DC-B0DC-4147-8040-BE0527F3F65C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9990F5DC-B0DC-4147-8040-BE0527F3F65C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9990F5DC-B0DC-4147-8040-BE0527F3F65C}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
