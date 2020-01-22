@@ -23,7 +23,7 @@ namespace Connectome
             }
 
             public List<Field.Domain.CellInfomation> Infomations { get; set; } = new List<Field.Domain.CellInfomation>();
-            public Location.LocationSet AreaCorner { get; set; }
+            public Location.LocationCornerSet AreaCorner { get; set; }
 
             public AxonConnectionIndex AxonConnection { get; set; }
         }
@@ -43,22 +43,6 @@ namespace Connectome
             throw ex;
         }
 
-        private static Location.LocationSet AreaCorner()
-        {
-            Location min = new Location(), max = new Location();
-            for (int i = 0; i < CoreObjects.Fields.Count; i++)
-            {
-                min.X = Math.Min(min.X, CoreObjects.Fields[i].Domain.AreaMinState.X);
-                min.Y = Math.Min(min.Y, CoreObjects.Fields[i].Domain.AreaMinState.Y);
-                min.Z = Math.Min(min.Z, CoreObjects.Fields[i].Domain.AreaMinState.Z);
-                max.X = Math.Max(max.X, CoreObjects.Fields[i].Domain.AreaMaxState.X);
-                max.Y = Math.Max(max.Y, CoreObjects.Fields[i].Domain.AreaMaxState.Y);
-                max.Z = Math.Max(max.Z, CoreObjects.Fields[i].Domain.AreaMaxState.Z);
-            }
-
-            return new Connectome.Location.LocationSet(min, max);
-        }
-
         public static void Initialize()
         {
             Components.State.CatchException = CatchException;
@@ -68,59 +52,60 @@ namespace Connectome
             Components.State.Initialize();
 
             CreateConnectome();
+            ConfirmConnectome();
         }
-
-        private static void AddField(Field.FieldCore field)
-        {
-            CoreObjects.Fields.Add(field);
-        }
-
-        private static void ConfirmField()
+        private static void CreateInfomation()
         {
             CoreObjects.AreaCorner = AreaCorner();
 
-            foreach (var field in CoreObjects.Fields)
+            double min = int.MaxValue, max = 0, ave = 0;
+            foreach (var cell in CoreObjects.Cells)
             {
-                foreach (var cell in field.Domain.Cells)
-                {
-                    CoreObjects.Cells.Add(cell);
-                }
+                var cnt = cell.ConnectedCells.Count;
+                ave += cnt;
+                if (min > cnt) { min = cnt; }
+                if (max < cnt) { max = cnt; }
             }
-            CoreObjects.Cells.Sort((x, y) =>
-            {
-                if (x.ID > y.ID) { return 1; }
-                else
-                if (x.ID < y.ID) { return -1; }
-                else { return 0; }
-            });
+            CoreObjects.AxsonConnectionAverage = ave / CoreObjects.Cells.Count;
+            CoreObjects.AxsonConnectionMax = max;
+            CoreObjects.AxsonConnectionMin = min;
+        }
 
-            foreach (var field in CoreObjects.Fields)
+        private static Location.LocationCornerSet AreaCorner()
+        {
+            Location min = new Location(), max = new Location();
+            for (int i = 0; i < CoreObjects.Fields.Count; i++)
             {
-                var fieldlist = CoreObjects.Fields.FindAll(x => x != field);
-                field.CreateConnection(fieldlist);
+                min.X = Math.Min(min.X, CoreObjects.Fields[i].AreaMinState.X);
+                min.Y = Math.Min(min.Y, CoreObjects.Fields[i].AreaMinState.Y);
+                min.Z = Math.Min(min.Z, CoreObjects.Fields[i].AreaMinState.Z);
+                max.X = Math.Max(max.X, CoreObjects.Fields[i].AreaMaxState.X);
+                max.Y = Math.Max(max.Y, CoreObjects.Fields[i].AreaMaxState.Y);
+                max.Z = Math.Max(max.Z, CoreObjects.Fields[i].AreaMaxState.Z);
             }
 
-            List<double> avelist = new List<double>();
-            List<double> maxlist = new List<double>();
-            List<double> minlist = new List<double>();
-            foreach (var field in CoreObjects.Fields)
-            {
-                avelist.Add(field.Domain.Cells.Average(x => x.ConnectedCells.Count));
-                maxlist.Add(field.Domain.Cells.Max(x => x.ConnectedCells.Count));
-                minlist.Add(field.Domain.Cells.Min(x => x.ConnectedCells.Count));
-            }
-            CoreObjects.AxsonConnectionAverage = avelist.Average();
-            CoreObjects.AxsonConnectionMax = maxlist.Max();
-            CoreObjects.AxsonConnectionMin = minlist.Min();
+            return new Connectome.Location.LocationCornerSet(min, max);
+        }
+
+        private static void ConfirmConnectome()
+        {
+
+
+            //foreach (var field in CoreObjects.Fields)
+            //{
+            //    var fieldlist = CoreObjects.Fields.FindAll(x => x != field);
+            //    field.CreateConnection(fieldlist);
+            //}
+
+            CreateInfomation();
         }
 
         public static void Start()
         {
-            ConfirmField();
-            foreach (var item in CoreObjects.Fields)
-            {
-                item.Start();
-            }
+            //foreach (var item in CoreObjects.Fields)
+            //{
+            //    item.Start();
+            //}
         }
 
         public static void RequestLatestState()
@@ -142,7 +127,7 @@ namespace Connectome
                         e.AreaCorner = CoreObjects.AreaCorner;
                         foreach (var field in CoreObjects.Fields)
                         {
-                            foreach (var cell in field.Domain.Cells)
+                            foreach (var cell in CoreObjects.Cells)
                             {
                                 e.Infomations.Add(cell.Clone());
                             }
@@ -154,41 +139,22 @@ namespace Connectome
             }
         }
 
+        private static void AddField(Field.FieldCore field)
+        {
+            CoreObjects.Fields.Add(field);
+        }
 
         private static void CreateConnectome()
         {
-            AddField(new Field.Receptor(new Field.Domain.Sensor.RandomPulsar(
-                new Connectome.Location(0, 0, 0), 0.5, 1000
-                )));
-
+            int cnt = 500;
             AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Connectome.Location(0, 0, 0), 1, 1000, 0.1
-                )));
+                new Location(0, 0, 0), 4, cnt, 0.2)));
             AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Connectome.Location(1.5, 0, 0), 1, 1000, 0.1
-                )));
+                new Location(1, 0, 0), 3, cnt, 0.175)));
             AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Connectome.Location(0, 1.5, 0), 1, 1000, 0.1
-                )));
+                new Location(2, 0, 0), 2, cnt, 0.15)));
             AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Connectome.Location(0, 0, 1.5), 1, 1000, 0.1
-                )));
-            AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Connectome.Location(-1.5, 0, 0), 1, 1000, 0.1
-                )));
-            AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Connectome.Location(0, -1.5, 0), 1, 1000, 0.1
-                )));
-            AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Connectome.Location(0, 0, -1.5), 1, 1000, 0.1
-                )));
-
-            AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Connectome.Location(1.25, 1.25, 1.25), 1.5, 1000, 0.2
-                )));
-            AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Connectome.Location(-1.25, -1.25, -1.25), 1.5, 1000, 0.2
-                )));
+                new Location(3, 0, 0), 1, cnt, 0.125)));
         }
     }
 }

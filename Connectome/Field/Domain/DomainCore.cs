@@ -10,58 +10,57 @@ namespace Connectome.Field.Domain
     {
         protected static Random random { get; set; } = new Random();
 
-        public Location AreaMinState { get; private set; }
-        public Location AreaMaxState { get; private set; }
-
-        public List<CellInfomation> Cells { get; protected set; } = new List<CellInfomation>();
         public Location Center { get; private set; }
-        public int Count { get; private set; }
-        public double AxonLength { get; private set; }
 
-        public DomainCore(CellInfomation.CellType type, Location center, double extent, int count, double axsonLenth = 0)
+        public List<int> ID { get; set; } = new List<int>();
+        public int Count { get; private set; }
+
+        public Location.LocationCornerSet AreaCorner { get; private set; }
+
+        public DomainCore(CellInfomation.CellType type, Location center, double areasize, int count, double axonLength)
         {
             Center = center;
             Count = count;
-            AxonLength = axsonLenth;
-
-            var list = new List<Location>();
-            var check = new List<int>();
+            List<Location> list = new List<Location>(new Location[count]);
             for (int i = 0; i < count; i++)
             {
-                list.Add(new Location(random, extent));
-                check.Add(0);
+                list[i] = new Location(random, areasize);
             }
-            if (type == CellInfomation.CellType.Synapse)
+            if (type == CellInfomation.CellType.Synapse && count > 1)
             {
-                while (check.Contains(0))
+                List<bool> check = new List<bool>(new bool[count]);
+                int cnt = check.FindAll(x => x == false).Count;
+                while (check.Contains(false))
                 {
-                    int cnt = check.FindAll(x => x == 0).Count;
                     for (int i = 0; i < count; i++)
                     {
-                        if (check[i] == 0)
+                        if (!check[i])
                         {
-                            list[i] = new Location(random, extent);
+                            list[i] = new Location(random, areasize);
                         }
-                        check[i] = 0;
+                        check[i] = false;
                         for (int j = 0; j < count; j++)
                         {
                             if (i == j) { continue; }
-                            if (list[i].DistanceTo(list[j]) < axsonLenth)
+                            if (list[i].DistanceTo(list[j]) < axonLength * areasize)
                             {
-                                check[i]++;
+                                check[i] = true;
+                                break;
                             }
                         }
                     }
+                    cnt = check.FindAll(x => x == false).Count;
                 }
             }
-
             for (int i = 0; i < count; i++)
             {
-                Cells.Add(new Domain.CellInfomation(type, list[i] + center) { AxsonLength = axsonLenth });
+                var cell = new CellInfomation(type, list[i] + center);
+                ID.Add(cell.ID);
+                CoreObjects.Cells.Add(cell);
             }
-            var areasize = new Location(extent, extent, extent);
-            AreaMinState = center - areasize;
-            AreaMaxState = center + areasize;
+
+            Location expand = new Location(areasize, areasize, areasize);
+            AreaCorner = new Location.LocationCornerSet(center - expand, center + expand);
         }
     }
 }

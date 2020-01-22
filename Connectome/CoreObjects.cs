@@ -10,7 +10,7 @@ namespace Connectome
     {
         public static bool IsTerminated { get; set; } = false;
 
-        public static Location.LocationSet AreaCorner { get; set; }
+        public static Location.LocationCornerSet AreaCorner { get; set; }
 
         public static double AxsonConnectionAverage { get; set; }
         public static double AxsonConnectionMax { get; set; }
@@ -18,5 +18,10 @@ namespace Connectome
 
         public static List<Field.FieldCore> Fields { get; set; } = new List<Field.FieldCore>();
         public static List<Field.Domain.CellInfomation> Cells { get; set; } = new List<Field.Domain.CellInfomation>();
+
+        public static class Infomation
+        {
+
+        }
     }
 }

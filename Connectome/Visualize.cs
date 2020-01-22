@@ -9,9 +9,21 @@ namespace Connectome
 {
     public static class Visualize
     {
-
-        public static Bitmap Imaging(Core.DataUploadEventArgs e, Location camera, Location view, int size)
+        public class Image
         {
+            public Bitmap Bitmap { get; private set; }
+            public TimeSpan CreateTimeSpan { get; private set; }
+
+            public Image(Bitmap bitmap, TimeSpan timespan)
+            {
+                Bitmap = bitmap;
+                CreateTimeSpan = timespan;
+            }
+        }
+
+        public static Image Imaging(Core.DataUploadEventArgs e, Location camera, Location view, int size)
+        {
+            DateTime start = DateTime.Now;
             Location.SetWorldMatrix(camera, view);
             double areawidth = Math.Sqrt(2) * Math.Max(1, Math.Max(Math.Abs(e.AreaCorner.Min), Math.Abs(e.AreaCorner.Max)));
 
@@ -21,10 +33,10 @@ namespace Connectome
 
             if (e.Infomations.Count > 0)
             {
-                foreach (var item in e.Infomations)
+                Parallel.ForEach(e.Infomations, item =>
                 {
                     item.LocalLocation = Location.GetConvertedLocation(item.Location);
-                }
+                });
                 e.Infomations.Sort((x, y) =>
                 {
                     if (x.LocalLocation.Z > y.LocalLocation.Z)
@@ -46,7 +58,9 @@ namespace Connectome
                 double far = z_order.Max();
                 double areasize = far == near ? 1 : far - near;
 
-                double sizeoder = Math.Max(5, size / 100), sizemin = 0.5;
+                double sizeoder = Math.Max(5, size / 100), sizemin = 0.75;
+
+                Pen edgePen = new Pen(Color.FromArgb(50, 50, 50));
                 foreach (var cell in e.Infomations)
                 {
                     float x = (float)(size * (cell.LocalLocation.X + areawidth) / (2 * areawidth));
@@ -63,7 +77,7 @@ namespace Connectome
                     switch (cell.Type)
                     {
                         case Field.Domain.CellInfomation.CellType.Synapse:
-                            c = Color.FromArgb(0, 0, brightness);
+                            c = Color.FromArgb(0, (byte)(byte.MaxValue * zodr), brightness);
                             break;
                         case Field.Domain.CellInfomation.CellType.Sensor:
                             c = Color.FromArgb(brightness, 0, brightness);
@@ -72,10 +86,11 @@ namespace Connectome
                             break;
                     }
                     g.FillEllipse(new SolidBrush(c), rect);
-                    g.DrawEllipse(Pens.DimGray, rect);
+                    g.DrawEllipse(edgePen, rect);
                 }
             }
-            return bitmap;
+
+            return new Image(bitmap, (DateTime.Now - start));
         }
     }
 }

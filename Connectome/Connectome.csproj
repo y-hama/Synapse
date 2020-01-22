@@ -47,12 +47,10 @@
     <Compile Include="CoreObjects.cs" />
     <Compile Include="Field\Area.cs" />
     <Compile Include="Field\Domain\CellInfomation.cs" />
-    <Compile Include="Field\Domain\Sensor\RandomPulsar.cs" />
-    <Compile Include="Field\FieldCore.cs" />
     <Compile Include="Field\Domain\DomainCore.cs" />
-    <Compile Include="Field\Domain\Sensor\SensorDomain.cs" />
     <Compile Include="Field\Domain\Transporter\SynapseConnection.cs" />
     <Compile Include="Field\Domain\Transporter\TransporterDomain.cs" />
+    <Compile Include="Field\FieldCore.cs" />
     <Compile Include="Field\Receptor.cs" />
     <Compile Include="Gpgpu\FunctionCore.cs" />
     <Compile Include="Location.cs" />
@@ -66,6 +64,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Field\Domain\Sensor\" />
     <Folder Include="Gpgpu\Function\" />
     <Folder Include="Gpgpu\Shared\" />
     <Folder Include="Gpgpu\Source\" />

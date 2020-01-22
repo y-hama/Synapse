@@ -8,9 +8,10 @@ namespace Connectome.Field.Domain.Transporter
 {
     class SynapseConnection : TransporterDomain
     {
-        public SynapseConnection(Location center, double extent, int count, double axonLength)
-            : base(center, extent, count, axonLength)
+        public SynapseConnection(Location center, double areasize, int count, double axonLength)
+            : base(center, areasize, count, axonLength)
         {
+
         }
     }
 }

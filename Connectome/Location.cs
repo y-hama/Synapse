@@ -8,7 +8,7 @@ namespace Connectome
 {
     public class Location
     {
-        public class LocationSet
+        public class LocationCornerSet
         {
             public Location AreaMinState { get; private set; }
             public Location AreaMaxState { get; private set; }
@@ -16,7 +16,7 @@ namespace Connectome
             public double Max { get { return Math.Max(AreaMinState.Max, AreaMaxState.Max); } }
             public double Min { get { return Math.Min(AreaMinState.Min, AreaMaxState.Min); } }
 
-            public LocationSet(Location min, Location max)
+            public LocationCornerSet(Location min, Location max)
             {
                 AreaMinState = min; AreaMaxState = max;
             }

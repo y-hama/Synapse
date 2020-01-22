@@ -8,8 +8,8 @@ namespace Connectome.Field.Domain.Transporter
 {
     abstract class TransporterDomain : DomainCore
     {
-        public TransporterDomain(Location center, double extent, int count, double axonLength)
-            : base(CellInfomation.CellType.Synapse, center, extent, count, axonLength)
+        public TransporterDomain(Location center, double areasize, int count, double axonLength) 
+            : base(CellInfomation.CellType.Synapse, center, areasize, count, axonLength)
         {
 
         }

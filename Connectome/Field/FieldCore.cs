@@ -8,46 +8,15 @@ namespace Connectome.Field
 {
     abstract class FieldCore
     {
-        public Domain.DomainCore Domain { get; protected set; }
+        protected Domain.DomainCore Domain { get; set; }
+        public int Count { get { return Domain.Count; } }
+
+        public Location AreaMinState { get { return Domain.AreaCorner.AreaMinState; } }
+        public Location AreaMaxState { get { return Domain.AreaCorner.AreaMaxState; } }
 
         public FieldCore(Domain.DomainCore domain)
         {
             Domain = domain;
         }
-
-        public void CreateConnection(List<FieldCore> fields)
-        {
-            foreach (var cell in Domain.Cells.FindAll(x => x.Type == Field.Domain.CellInfomation.CellType.Synapse))
-            {
-                foreach (var item in Domain.Cells.FindAll(x => x != cell))
-                {
-                    if (cell.Location.DistanceTo(item.Location) < cell.AxsonLength)
-                    {
-                        cell.ConnectedCells.Add(item);
-                    }
-                }
-                foreach (var field in fields)
-                {
-                    foreach (var item in field.Domain.Cells)
-                    {
-                        if (cell.Location.DistanceTo(item.Location) < cell.AxsonLength)
-                        {
-                            cell.ConnectedCells.Add(item);
-                        }
-                    }
-                }
-            }
-
-            ConnectionConfirmed();
-        }
-
-        protected abstract void ConnectionConfirmed();
-
-        public void Start()
-        {
-            new System.Threading.Thread(() => { while (!CoreObjects.IsTerminated) { CalculationStep(); } }).Start();
-        }
-
-        protected abstract void CalculationStep();
     }
 }
