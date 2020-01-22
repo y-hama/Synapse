@@ -12,6 +12,8 @@ namespace ConnectomeVisualizer.Forms
 {
     public partial class MainForm : Form
     {
+        private MouseButtons PressedButton { get; set; } = MouseButtons.None;
+
         public MainForm()
         {
             InitializeComponent();
@@ -47,9 +49,18 @@ namespace ConnectomeVisualizer.Forms
             VisualizeObjects.ImageSize = Math.Min(pictureBox1.Width, pictureBox1.Height);
             if (VisualizeObjects.ImageSize > 0)
             {
-                VisualizeObjects.Th += 0.01;
+                if (PressedButton == MouseButtons.Left)
+                {
+                    VisualizeObjects.Th -= 0.01;
+                }
+                else if (PressedButton == MouseButtons.Right)
+                {
+                    VisualizeObjects.Th += 0.01;
+                }
                 if (VisualizeObjects.Th > 2 * Math.PI)
                 { VisualizeObjects.Th -= 2 * Math.PI; }
+                if (VisualizeObjects.Th < 0)
+                { VisualizeObjects.Th += 2 * Math.PI; }
                 VisualizeObjects.CalcCameraPos();
                 Connectome.Core.RequestLatestState();
             }
@@ -61,15 +72,12 @@ namespace ConnectomeVisualizer.Forms
 
         private void pictureBox1_MouseDown(object sender, MouseEventArgs e)
         {
-
-
-            timer1.Enabled = true;
+            PressedButton = e.Button;
         }
 
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
-
-            timer1.Enabled = false;
+            PressedButton = MouseButtons.None;
         }
     }
 }
