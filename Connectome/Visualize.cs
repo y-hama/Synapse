@@ -14,6 +14,9 @@ namespace Connectome
             public Bitmap Bitmap { get; private set; }
             public TimeSpan CreateTimeSpan { get; private set; }
 
+            public TimeSpan ProcessTimeSpan { get; set; }
+            public int ProcessFrameCount { get; set; }
+
             public Image(Bitmap bitmap, TimeSpan timespan)
             {
                 Bitmap = bitmap;
@@ -21,11 +24,11 @@ namespace Connectome
             }
         }
 
-        public static Image Imaging(Core.DataUploadEventArgs e, Location camera, Location view, int size)
+        public static Image Imaging(Core.DataUploadEventArgs e, Location camera, Location view, int size, bool drawCell = true, bool drawConnectEdge = false)
         {
             DateTime start = DateTime.Now;
             Location.SetWorldMatrix(camera, view);
-            double areawidth = Math.Sqrt(2) * Math.Max(1, Math.Max(Math.Abs(e.AreaCorner.Min), Math.Abs(e.AreaCorner.Max)));
+            double areawidth = Math.Max(1, Math.Max(Math.Abs(e.AreaCorner.Min), Math.Abs(e.AreaCorner.Max)));
 
             Bitmap bitmap = new Bitmap(size, size);
             Graphics g = Graphics.FromImage(bitmap);
@@ -33,10 +36,17 @@ namespace Connectome
 
             if (e.Infomations.Count > 0)
             {
-                Parallel.ForEach(e.Infomations, item =>
+                foreach (var item in e.Infomations)
                 {
                     item.LocalLocation = Location.GetConvertedLocation(item.Location);
-                });
+                }
+                //Parallel.ForEach(e.Infomations, new ParallelOptions()
+                //{
+                //    MaxDegreeOfParallelism = 1,
+                //}, item =>
+                //{
+                //    item.LocalLocation = Location.GetConvertedLocation(item.Location);
+                //});
                 e.Infomations.Sort((x, y) =>
                 {
                     if (x.LocalLocation.Z > y.LocalLocation.Z)
@@ -58,9 +68,10 @@ namespace Connectome
                 double far = z_order.Max();
                 double areasize = far == near ? 1 : far - near;
 
-                double sizeoder = Math.Max(5, size / 100), sizemin = 0.75;
+                double sizeoder = Math.Max(10, size / 100), sizemin = 0.75;
 
-                Pen edgePen = new Pen(Color.FromArgb(50, 50, 50));
+                Pen edgePen = new Pen(Color.FromArgb(32, 32, 32));
+                Pen linePen = new Pen(Color.FromArgb(128, 128, 128));
                 foreach (var cell in e.Infomations)
                 {
                     float x = (float)(size * (cell.LocalLocation.X + areawidth) / (2 * areawidth));
@@ -69,28 +80,48 @@ namespace Connectome
                     double itemorder = (cell.LocalLocation.Z - near) / (areasize);
                     double signal = (Math.Max(0, Math.Min(1, cell.Value)));
                     double zodr = (1 - itemorder);
+                    byte alpha = (byte)(zodr * byte.MaxValue);
 
-                    float elemsize = (float)(sizeoder * ((1 - sizemin) * zodr + sizemin));
-                    RectangleF rect = new RectangleF(x - elemsize / 2, y - elemsize / 2, elemsize, elemsize);
-                    byte brightness = (byte)(byte.MaxValue * signal);
-                    Color c = Color.Red;
-                    switch (cell.Type)
+                    if (drawConnectEdge)
                     {
-                        case Field.Domain.CellInfomation.CellType.Synapse:
-                            c = Color.FromArgb(0, (byte)(byte.MaxValue * zodr), brightness);
-                            break;
-                        case Field.Domain.CellInfomation.CellType.Sensor:
-                            c = Color.FromArgb(brightness, 0, brightness);
-                            break;
-                        default:
-                            break;
+                        for (int i = 0; i < cell.ConnectedCells.Count; i++)
+                        {
+                            int id = cell.ConnectedCells[i].ID;
+                            var edgec = e.Infomations.Find(n => n.ID == id);
+                            float xx = (float)(size * (edgec.LocalLocation.X + areawidth) / (2 * areawidth));
+                            float yy = (float)(size * (edgec.LocalLocation.Y + areawidth) / (2 * areawidth));
+                            g.DrawLine(new Pen(Color.FromArgb(alpha / 8, linePen.Color)), new PointF(x, y), new PointF(xx, yy));
+                        }
                     }
-                    g.FillEllipse(new SolidBrush(c), rect);
-                    g.DrawEllipse(edgePen, rect);
+                    if (drawCell)
+                    {
+                        float elemsize = (float)(sizeoder * ((1 - sizemin) * zodr + sizemin));
+                        RectangleF rect = new RectangleF(x - elemsize / 2, y - elemsize / 2, elemsize, elemsize);
+                        byte brightness = (byte)(byte.MaxValue * signal);
+                        Color c = Color.FromArgb(255, Color.Black);
+                        switch (cell.Type)
+                        {
+                            case Field.Domain.CellInfomation.CellType.Synapse:
+                                c = Color.FromArgb(brightness / 4, brightness / 4, brightness);
+                                break;
+                            case Field.Domain.CellInfomation.CellType.Sensor:
+                                c = Color.FromArgb(brightness, 0, brightness / 2);
+                                break;
+                            default:
+                                break;
+                        }
+                        g.FillEllipse(new SolidBrush(Color.FromArgb(alpha, c)), rect);
+                        g.DrawEllipse(new Pen(Color.FromArgb(alpha, edgePen.Color)), rect);
+                    }
                 }
             }
 
-            return new Image(bitmap, (DateTime.Now - start));
+            return new Image(bitmap, (DateTime.Now - start))
+            {
+                ProcessFrameCount = e.ProcessFrame,
+                ProcessTimeSpan = e.ProcessTime
+
+            };
         }
     }
 }

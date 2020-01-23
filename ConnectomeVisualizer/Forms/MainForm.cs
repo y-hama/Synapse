@@ -25,7 +25,11 @@ namespace ConnectomeVisualizer.Forms
         {
             if (InvokeRequired)
             {
-                Invoke(new SetImageDelegate(SetImage), image);
+                try
+                {
+                    Invoke(new SetImageDelegate(SetImage), image);
+                }
+                catch (Exception) { }
                 return;
             }
             else
@@ -35,34 +39,33 @@ namespace ConnectomeVisualizer.Forms
                     pictureBox1.Image = image.Bitmap;
                     GC.Collect();
                 }
-                this.Text = image.CreateTimeSpan.TotalMilliseconds.ToString();
+                this.Text = image.CreateTimeSpan.TotalMilliseconds.ToString() + " " + Math.Round(image.ProcessTimeSpan.TotalMilliseconds / image.ProcessFrameCount, 2);
             }
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            Connectome.Core.Terminate();
         }
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            VisualizeObjects.ImageSize = Math.Min(pictureBox1.Width, pictureBox1.Height);
-            if (VisualizeObjects.ImageSize > 0)
+            Visualization.ImageSize = 2 * Math.Min(pictureBox1.Width, pictureBox1.Height);
+            if (Visualization.ImageSize > 0)
             {
                 if (PressedButton == MouseButtons.Left)
                 {
-                    VisualizeObjects.Th -= 0.01;
+                    Visualization.Th -= 0.01;
                 }
                 else if (PressedButton == MouseButtons.Right)
                 {
-                    VisualizeObjects.Th += 0.01;
+                    Visualization.Th += 0.01;
                 }
-                if (VisualizeObjects.Th > 2 * Math.PI)
-                { VisualizeObjects.Th -= 2 * Math.PI; }
-                if (VisualizeObjects.Th < 0)
-                { VisualizeObjects.Th += 2 * Math.PI; }
-                VisualizeObjects.CalcCameraPos();
-                Connectome.Core.RequestLatestState();
+                if (Visualization.Th > 2 * Math.PI)
+                { Visualization.Th -= 2 * Math.PI; }
+                if (Visualization.Th < 0)
+                { Visualization.Th += 2 * Math.PI; }
+                Visualization.CalcCameraPos();
+                Visualization.RequestImage(SaveImageFlag.Checked);
             }
         }
 
@@ -78,6 +81,16 @@ namespace ConnectomeVisualizer.Forms
         private void pictureBox1_MouseUp(object sender, MouseEventArgs e)
         {
             PressedButton = MouseButtons.None;
+        }
+
+        private void DrawEdgeFlag_CheckedChanged(object sender, EventArgs e)
+        {
+            Visualization.RequestDrawEdgeLine = DrawEdgeFlag.Checked;
+        }
+
+        private void DrawCellFlag_CheckedChanged(object sender, EventArgs e)
+        {
+            Visualization.RequestDrawCell = DrawCellFlag.Checked;
         }
     }
 }

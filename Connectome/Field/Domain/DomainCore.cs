@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Components;
 
 namespace Connectome.Field.Domain
 {
@@ -12,52 +13,56 @@ namespace Connectome.Field.Domain
 
         public Location Center { get; private set; }
 
-        public List<int> ID { get; set; } = new List<int>();
+        private List<int> _ID { get; set; } = new List<int>();
+        public RNdArray ID { get; private set; }
+
         public int Count { get; private set; }
 
         public Location.LocationCornerSet AreaCorner { get; private set; }
 
-        public DomainCore(CellInfomation.CellType type, Location center, double areasize, int count, double axonLength)
+        public DomainCore(CellInfomation.CellType type, Location center, double areasize, int count, int connectcount, double defaultAxonLength = 0.1)
         {
             Center = center;
             Count = count;
             List<Location> list = new List<Location>(new Location[count]);
+            List<double> axonLength = new List<double>(new double[count]);
+            List<int> cnnctcnt = new List<int>(new int[count]);
             for (int i = 0; i < count; i++)
             {
                 list[i] = new Location(random, areasize);
             }
             if (type == CellInfomation.CellType.Synapse && count > 1)
             {
-                List<bool> check = new List<bool>(new bool[count]);
-                int cnt = check.FindAll(x => x == false).Count;
-                while (check.Contains(false))
+                for (int i = 0; i < count; i++)
                 {
-                    for (int i = 0; i < count; i++)
+                    axonLength[i] = defaultAxonLength;
+                    bool check = false;
+                    while (!check)
                     {
-                        if (!check[i])
-                        {
-                            list[i] = new Location(random, areasize);
-                        }
-                        check[i] = false;
+                        cnnctcnt[i] = 0;
                         for (int j = 0; j < count; j++)
                         {
                             if (i == j) { continue; }
-                            if (list[i].DistanceTo(list[j]) < axonLength * areasize)
+                            if (list[i].DistanceTo(list[j]) < axonLength[i])
                             {
-                                check[i] = true;
-                                break;
+                                cnnctcnt[i]++;
                             }
                         }
+                        if (cnnctcnt[i] > connectcount)
+                        {
+                            check = true;
+                        }
+                        else { axonLength[i] += defaultAxonLength / 10; }
                     }
-                    cnt = check.FindAll(x => x == false).Count;
                 }
             }
             for (int i = 0; i < count; i++)
             {
-                var cell = new CellInfomation(type, list[i] + center);
-                ID.Add(cell.ID);
+                var cell = new CellInfomation(type, list[i] + center) { AxsonLength = axonLength[i] };
+                _ID.Add(cell.ID);
                 CoreObjects.Cells.Add(cell);
             }
+            ID = new RNdArray(_ID.ToArray());
 
             Location expand = new Location(areasize, areasize, areasize);
             AreaCorner = new Location.LocationCornerSet(center - expand, center + expand);

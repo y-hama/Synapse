@@ -80,6 +80,7 @@ namespace Connectome.Field.Domain
                 Potential = Potential,
                 Activity = Activity,
                 AxsonLength = AxsonLength,
+                ConnectedCells = new List<Domain.CellInfomation>(ConnectedCells.ToArray()),
             };
         }
     }

@@ -26,6 +26,9 @@ namespace Connectome
             public Location.LocationCornerSet AreaCorner { get; set; }
 
             public AxonConnectionIndex AxonConnection { get; set; }
+
+            public TimeSpan ProcessTime { get; set; }
+            public int ProcessFrame { get; set; }
         }
 
         public delegate void DataUploadEventHandler(DataUploadEventArgs e);
@@ -89,23 +92,43 @@ namespace Connectome
 
         private static void ConfirmConnectome()
         {
+            CoreObjects.Count = CoreObjects.Cells.Count;
+
+            for (int i = 0; i < CoreObjects.Count; i++)
+            {
+                if (CoreObjects.Cells[i].Type == Field.Domain.CellInfomation.CellType.Synapse)
+                {
+                    var cell = CoreObjects.Cells[i];
+                    for (int j = 0; j < CoreObjects.Count; j++)
+                    {
+                        if (cell.Location.DistanceTo(CoreObjects.Cells[j].Location) < cell.AxsonLength)
+                        {
+                            cell.ConnectedCells.Add(CoreObjects.Cells[j]);
+                        }
+                    }
+                }
+            }
 
 
-            //foreach (var field in CoreObjects.Fields)
-            //{
-            //    var fieldlist = CoreObjects.Fields.FindAll(x => x != field);
-            //    field.CreateConnection(fieldlist);
-            //}
+            CoreObjects.Infomation.Value = new Components.RNdArray(CoreObjects.Count);
+            CoreObjects.Infomation.Signal = new Components.RNdArray(CoreObjects.Count);
+            CoreObjects.Infomation.Potential = new Components.RNdArray(CoreObjects.Count);
+            CoreObjects.Infomation.Activity = new Components.RNdArray(CoreObjects.Count);
+
+            CoreObjects.Infomation.Weight = new Components.RNdArray(1);
+            CoreObjects.Infomation.ConnectionCount = new Components.RNdArray(1);
+            CoreObjects.Infomation.ConnectionIndex = new Components.RNdArray(1);
+            CoreObjects.Infomation.ConnectionStartPosition = new Components.RNdArray(1);
 
             CreateInfomation();
         }
 
         public static void Start()
         {
-            //foreach (var item in CoreObjects.Fields)
-            //{
-            //    item.Start();
-            //}
+            foreach (var item in CoreObjects.Fields)
+            {
+                item.Start();
+            }
         }
 
         public static void RequestLatestState()
@@ -117,6 +140,24 @@ namespace Connectome
                     DataCreating = true;
                     new System.Threading.Thread(() =>
                     {
+                        for (int i = 0; i < CoreObjects.Count; i++)
+                        {
+                            CoreObjects.Cells[i].Value = CoreObjects.Infomation.Value[i];
+                            CoreObjects.Cells[i].Signal = CoreObjects.Infomation.Signal[i];
+                            CoreObjects.Cells[i].Potential = CoreObjects.Infomation.Potential[i];
+                            CoreObjects.Cells[i].Activity = CoreObjects.Infomation.Activity[i];
+                        }
+                        //Parallel.For(0, CoreObjects.Count, new ParallelOptions()
+                        //{
+                        //    MaxDegreeOfParallelism = 1,
+                        //}, i =>
+                        //{
+                        //    CoreObjects.Cells[i].Value = CoreObjects.Infomation.Value[i];
+                        //    CoreObjects.Cells[i].Signal = CoreObjects.Infomation.Signal[i];
+                        //    CoreObjects.Cells[i].Potential = CoreObjects.Infomation.Potential[i];
+                        //    CoreObjects.Cells[i].Activity = CoreObjects.Infomation.Activity[i];
+                        //});
+
                         var e = new DataUploadEventArgs();
                         e.AxonConnection = new DataUploadEventArgs.AxonConnectionIndex()
                         {
@@ -125,14 +166,16 @@ namespace Connectome
                             Min = CoreObjects.AxsonConnectionMin,
                         };
                         e.AreaCorner = CoreObjects.AreaCorner;
-                        foreach (var field in CoreObjects.Fields)
+                        foreach (var cell in CoreObjects.Cells)
                         {
-                            foreach (var cell in CoreObjects.Cells)
-                            {
-                                e.Infomations.Add(cell.Clone());
-                            }
+                            e.Infomations.Add(cell.Clone());
                         }
+                        e.ProcessTime = DateTime.Now - CoreObjects.LatestSequenceTime;
+                        e.ProcessFrame = CoreObjects.MaxStepOverCount - CoreObjects.LatestSequenceIndex;
                         DataUploadHandler?.Invoke(e);
+                        CoreObjects.LatestSequenceTime = DateTime.Now;
+                        CoreObjects.LatestSequenceIndex = CoreObjects.MaxStepOverCount;
+
                         DataCreating = false;
                     }).Start();
                 }
@@ -146,15 +189,15 @@ namespace Connectome
 
         private static void CreateConnectome()
         {
-            int cnt = 500;
+            int cnt = 200;
+
+            AddField(new Field.Receptor(new Field.Domain.Sensor.RandomPulser(
+                new Location(4, 0, 0), 1, cnt)));
+
             AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Location(0, 0, 0), 4, cnt, 0.2)));
+                new Location(4, 0, 0), 2, cnt, 8)));
             AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Location(1, 0, 0), 3, cnt, 0.175)));
-            AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Location(2, 0, 0), 2, cnt, 0.15)));
-            AddField(new Field.Area(new Field.Domain.Transporter.SynapseConnection(
-                new Location(3, 0, 0), 1, cnt, 0.125)));
+                new Location(0, 0, 0), 5, cnt, 16)));
         }
     }
 }
