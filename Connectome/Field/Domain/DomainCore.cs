@@ -31,28 +31,39 @@ namespace Connectome.Field.Domain
             {
                 list[i] = new Location(random, areasize);
             }
-            if (type == CellInfomation.CellType.Synapse && count > 1)
+            if (type == CellInfomation.CellType.Synapse)
             {
-                for (int i = 0; i < count; i++)
+                if (count > 1)
                 {
-                    axonLength[i] = defaultAxonLength;
-                    bool check = false;
-                    while (!check)
+                    for (int i = 0; i < count; i++)
                     {
-                        cnnctcnt[i] = 0;
-                        for (int j = 0; j < count; j++)
+                        axonLength[i] = defaultAxonLength;
+                        bool check = false;
+                        while (!check)
                         {
-                            if (i == j) { continue; }
-                            if (list[i].DistanceTo(list[j]) < axonLength[i])
+                            cnnctcnt[i] = 0;
+                            for (int j = 0; j < count; j++)
                             {
-                                cnnctcnt[i]++;
+                                if (i == j) { continue; }
+                                if (list[i].DistanceTo(list[j]) < axonLength[i])
+                                {
+                                    cnnctcnt[i]++;
+                                }
                             }
+                            if (cnnctcnt[i] >= Math.Min(count / 2, connectcount))
+                            {
+                                check = true;
+                            }
+                            else { axonLength[i] += defaultAxonLength / 10; }
                         }
-                        if (cnnctcnt[i] > connectcount)
-                        {
-                            check = true;
-                        }
-                        else { axonLength[i] += defaultAxonLength / 10; }
+                    }
+                }
+                else
+                {
+                    list[0] = center;
+                    for (int i = 0; i < count; i++)
+                    {
+                        axonLength[i] = areasize;
                     }
                 }
             }

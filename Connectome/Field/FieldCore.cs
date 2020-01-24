@@ -31,8 +31,8 @@ namespace Connectome.Field
                 {
                     CurrentStep();
                     StepOver++;
-                    while (!CanNextStep() && !CoreObjects.IsTerminated)
-                    { System.Threading.Thread.Sleep(1); }
+                    while (!CanNextStep() && !CoreObjects.IsTerminated) { System.Threading.Thread.Sleep(1); }
+                    System.Threading.Thread.Sleep(CoreObjects.TimeScale);
                 }
             }).Start();
         }

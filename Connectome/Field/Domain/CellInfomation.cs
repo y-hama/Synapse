@@ -61,6 +61,7 @@ namespace Connectome.Field.Domain
         public double AxsonLength { get; set; }
 
         public List<CellInfomation> ConnectedCells { get; set; } = new List<CellInfomation>();
+        public List<double> ConnectionWeight { get; set; } = new List<double>();
 
         public CellInfomation(CellType type, Location location)
         {
@@ -81,6 +82,7 @@ namespace Connectome.Field.Domain
                 Activity = Activity,
                 AxsonLength = AxsonLength,
                 ConnectedCells = new List<Domain.CellInfomation>(ConnectedCells.ToArray()),
+                ConnectionWeight = new List<double>(ConnectionWeight.ToArray()),
             };
         }
     }

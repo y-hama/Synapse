@@ -39,7 +39,7 @@ namespace ConnectomeVisualizer.Forms
                     pictureBox1.Image = image.Bitmap;
                     GC.Collect();
                 }
-                this.Text = image.CreateTimeSpan.TotalMilliseconds.ToString() + " " + Math.Round(image.ProcessTimeSpan.TotalMilliseconds / image.ProcessFrameCount, 2);
+                this.Text = Math.Round(image.FPS, 0).ToString();//Math.Round(image.CreateTimeSpan.TotalMilliseconds, 0).ToString() + " " +
             }
         }
 
@@ -49,7 +49,7 @@ namespace ConnectomeVisualizer.Forms
 
         private void timer1_Tick(object sender, EventArgs e)
         {
-            Visualization.ImageSize = 2 * Math.Min(pictureBox1.Width, pictureBox1.Height);
+            Visualization.ImageSize = Math.Min(pictureBox1.Width, pictureBox1.Height);
             if (Visualization.ImageSize > 0)
             {
                 if (PressedButton == MouseButtons.Left)
@@ -91,6 +91,11 @@ namespace ConnectomeVisualizer.Forms
         private void DrawCellFlag_CheckedChanged(object sender, EventArgs e)
         {
             Visualization.RequestDrawCell = DrawCellFlag.Checked;
+        }
+
+        private void TimeScaleBar_Scroll(object sender, EventArgs e)
+        {
+            Connectome.Core.SetTimeScale(TimeScaleBar.Value);
         }
     }
 }

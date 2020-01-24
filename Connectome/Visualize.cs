@@ -16,6 +16,7 @@ namespace Connectome
 
             public TimeSpan ProcessTimeSpan { get; set; }
             public int ProcessFrameCount { get; set; }
+            public double FPS { get; set; }
 
             public Image(Bitmap bitmap, TimeSpan timespan)
             {
@@ -68,9 +69,8 @@ namespace Connectome
                 double far = z_order.Max();
                 double areasize = far == near ? 1 : far - near;
 
-                double sizeoder = Math.Max(10, size / 100), sizemin = 0.75;
+                double sizeoder = Math.Max(10, size / 50), sizemin = 0.75;
 
-                Pen edgePen = new Pen(Color.FromArgb(32, 32, 32));
                 Pen linePen = new Pen(Color.FromArgb(128, 128, 128));
                 foreach (var cell in e.Infomations)
                 {
@@ -78,40 +78,52 @@ namespace Connectome
                     float y = (float)(size * (cell.LocalLocation.Y + areawidth) / (2 * areawidth));
 
                     double itemorder = (cell.LocalLocation.Z - near) / (areasize);
-                    double signal = (Math.Max(0, Math.Min(1, cell.Value)));
+                    double value = (Math.Max(0, Math.Min(1, cell.Value)));
+                    double signal = (Math.Max(0, Math.Min(1, cell.Signal)));
                     double zodr = (1 - itemorder);
                     byte alpha = (byte)(zodr * byte.MaxValue);
 
                     if (drawConnectEdge)
                     {
-                        for (int i = 0; i < cell.ConnectedCells.Count; i++)
+                        if (cell.Type == Field.Domain.CellInfomation.CellType.Synapse)
                         {
-                            int id = cell.ConnectedCells[i].ID;
-                            var edgec = e.Infomations.Find(n => n.ID == id);
-                            float xx = (float)(size * (edgec.LocalLocation.X + areawidth) / (2 * areawidth));
-                            float yy = (float)(size * (edgec.LocalLocation.Y + areawidth) / (2 * areawidth));
-                            g.DrawLine(new Pen(Color.FromArgb(alpha / 8, linePen.Color)), new PointF(x, y), new PointF(xx, yy));
+                            double max = cell.ConnectionWeight.Max();
+                            double min = cell.ConnectionWeight.Min();
+                            double sum = cell.ConnectionWeight.Sum();
+                            double delta = max - min;
+                            byte alp = 0;
+                            for (int i = 0; i < cell.ConnectedCells.Count; i++)
+                            {
+                                int id = cell.ConnectedCells[i].ID;
+                                var edgec = e.Infomations.Find(n => n.ID == id);
+                                float xx = (float)(size * (edgec.LocalLocation.X + areawidth) / (2 * areawidth));
+                                float yy = (float)(size * (edgec.LocalLocation.Y + areawidth) / (2 * areawidth));
+                                if (delta == 0) { alp = (byte)(byte.MaxValue * (0.5 * cell.ConnectionWeight[i] + 0.5)); }
+                                else { alp = (byte)(byte.MaxValue * ((0.5 * (cell.ConnectionWeight[i]) / max) + 0.5)); }
+                                g.DrawLine(new Pen(Color.FromArgb(alp, linePen.Color)), new PointF(x, y), new PointF(xx, yy));
+                            }
                         }
                     }
                     if (drawCell)
                     {
                         float elemsize = (float)(sizeoder * ((1 - sizemin) * zodr + sizemin));
                         RectangleF rect = new RectangleF(x - elemsize / 2, y - elemsize / 2, elemsize, elemsize);
-                        byte brightness = (byte)(byte.MaxValue * signal);
+                        byte valuebrightness = (byte)(byte.MaxValue * value);
+                        byte sigbrightness = (byte)(byte.MaxValue * signal);
                         Color c = Color.FromArgb(255, Color.Black);
                         switch (cell.Type)
                         {
                             case Field.Domain.CellInfomation.CellType.Synapse:
-                                c = Color.FromArgb(brightness / 4, brightness / 4, brightness);
+                                c = Color.FromArgb(valuebrightness / 4, valuebrightness / 4, valuebrightness);
                                 break;
                             case Field.Domain.CellInfomation.CellType.Sensor:
-                                c = Color.FromArgb(brightness, 0, brightness / 2);
+                                c = Color.FromArgb(valuebrightness, 0, valuebrightness / 2);
                                 break;
                             default:
                                 break;
                         }
                         g.FillEllipse(new SolidBrush(Color.FromArgb(alpha, c)), rect);
-                        g.DrawEllipse(new Pen(Color.FromArgb(alpha, edgePen.Color)), rect);
+                        g.DrawEllipse(new Pen(Color.FromArgb(alpha, Color.FromArgb(sigbrightness, 64, 64 + sigbrightness / 4))), rect);
                     }
                 }
             }
@@ -119,8 +131,8 @@ namespace Connectome
             return new Image(bitmap, (DateTime.Now - start))
             {
                 ProcessFrameCount = e.ProcessFrame,
-                ProcessTimeSpan = e.ProcessTime
-
+                ProcessTimeSpan = e.ProcessTime,
+                FPS = e.FPS,
             };
         }
     }

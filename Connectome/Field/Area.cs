@@ -17,6 +17,7 @@ namespace Connectome.Field
 
         protected override void CurrentStep()
         {
+            RNdArray state = new RNdArray(CoreObjects.Infomation.State.Data);
             RNdArray value = new RNdArray(CoreObjects.Infomation.Value.Data);
             RNdArray signal = new RNdArray(CoreObjects.Infomation.Signal.Data);
             RNdArray potential = new RNdArray(CoreObjects.Infomation.Potential.Data);
@@ -27,23 +28,24 @@ namespace Connectome.Field
             RNdArray connectionStartPosition = new RNdArray(CoreObjects.Infomation.ConnectionStartPosition.Data);
 
             (Domain as Domain.Transporter.TransporterDomain).InnerStep
-                (ref value, ref signal, ref potential, ref activity,
+                (ref state, ref value, ref signal, ref potential, ref activity,
                  ref weight,
                  ref connectionCount, ref connectionIndex, ref connectionStartPosition);
 
             for (int i = 0; i < Domain.Count; i++)
             {
                 int idx = (int)Domain.ID[i];
+                CoreObjects.Infomation.State[idx] = state[idx];
                 CoreObjects.Infomation.Value[idx] = value[idx];
                 CoreObjects.Infomation.Signal[idx] = signal[idx];
                 CoreObjects.Infomation.Potential[idx] = potential[idx];
                 CoreObjects.Infomation.Activity[idx] = activity[idx];
-                //int csidx = (int)connectionStartPosition[idx];
-                //int cnctcnt = (int)connectionCount[idx];
-                //for (int j = 0; j < cnctcnt; j++)
-                //{
-                //    CoreObjects.Infomation.Weight[csidx + j] = weight[csidx + j];
-                //}
+                int csidx = (int)connectionStartPosition[idx];
+                int cnctcnt = (int)connectionCount[idx];
+                for (int j = 0; j < cnctcnt; j++)
+                {
+                    CoreObjects.Infomation.Weight[csidx + j] = weight[csidx + j];
+                }
             }
         }
     }

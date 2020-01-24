@@ -33,11 +33,13 @@
             this.timer1 = new System.Windows.Forms.Timer(this.components);
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.DrawCellFlag = new System.Windows.Forms.CheckBox();
             this.DrawEdgeFlag = new System.Windows.Forms.CheckBox();
             this.SaveImageFlag = new System.Windows.Forms.CheckBox();
-            this.DrawCellFlag = new System.Windows.Forms.CheckBox();
+            this.TimeScaleBar = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TimeScaleBar)).BeginInit();
             this.SuspendLayout();
             // 
             // pictureBox1
@@ -69,6 +71,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.TimeScaleBar);
             this.panel1.Controls.Add(this.DrawCellFlag);
             this.panel1.Controls.Add(this.DrawEdgeFlag);
             this.panel1.Controls.Add(this.SaveImageFlag);
@@ -78,6 +81,19 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(412, 44);
             this.panel1.TabIndex = 2;
+            // 
+            // DrawCellFlag
+            // 
+            this.DrawCellFlag.AutoSize = true;
+            this.DrawCellFlag.Checked = true;
+            this.DrawCellFlag.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.DrawCellFlag.Location = new System.Drawing.Point(180, 25);
+            this.DrawCellFlag.Name = "DrawCellFlag";
+            this.DrawCellFlag.Size = new System.Drawing.Size(70, 16);
+            this.DrawCellFlag.TabIndex = 4;
+            this.DrawCellFlag.Text = "DrawCell";
+            this.DrawCellFlag.UseVisualStyleBackColor = true;
+            this.DrawCellFlag.CheckedChanged += new System.EventHandler(this.DrawCellFlag_CheckedChanged);
             // 
             // DrawEdgeFlag
             // 
@@ -100,18 +116,16 @@
             this.SaveImageFlag.Text = "SaveProcess";
             this.SaveImageFlag.UseVisualStyleBackColor = true;
             // 
-            // DrawCellFlag
+            // TimeScaleBar
             // 
-            this.DrawCellFlag.AutoSize = true;
-            this.DrawCellFlag.Checked = true;
-            this.DrawCellFlag.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.DrawCellFlag.Location = new System.Drawing.Point(180, 25);
-            this.DrawCellFlag.Name = "DrawCellFlag";
-            this.DrawCellFlag.Size = new System.Drawing.Size(70, 16);
-            this.DrawCellFlag.TabIndex = 4;
-            this.DrawCellFlag.Text = "DrawCell";
-            this.DrawCellFlag.UseVisualStyleBackColor = true;
-            this.DrawCellFlag.CheckedChanged += new System.EventHandler(this.DrawCellFlag_CheckedChanged);
+            this.TimeScaleBar.AutoSize = false;
+            this.TimeScaleBar.Location = new System.Drawing.Point(265, 25);
+            this.TimeScaleBar.Maximum = 50;
+            this.TimeScaleBar.Name = "TimeScaleBar";
+            this.TimeScaleBar.Size = new System.Drawing.Size(135, 19);
+            this.TimeScaleBar.TabIndex = 3;
+            this.TimeScaleBar.TickStyle = System.Windows.Forms.TickStyle.None;
+            this.TimeScaleBar.Scroll += new System.EventHandler(this.TimeScaleBar_Scroll);
             // 
             // MainForm
             // 
@@ -127,6 +141,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.TimeScaleBar)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -140,5 +155,6 @@
         private System.Windows.Forms.CheckBox SaveImageFlag;
         private System.Windows.Forms.CheckBox DrawEdgeFlag;
         private System.Windows.Forms.CheckBox DrawCellFlag;
+        private System.Windows.Forms.TrackBar TimeScaleBar;
     }
 }
