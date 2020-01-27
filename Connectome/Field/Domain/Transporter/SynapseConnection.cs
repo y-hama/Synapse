@@ -9,8 +9,8 @@ namespace Connectome.Field.Domain.Transporter
 {
     class SynapseConnection : TransporterDomain
     {
-        public SynapseConnection(Location center, double areasize, int count, int connectcount, double defaultAxonLength = 0.1)
-            : base(center, areasize, count, connectcount, defaultAxonLength)
+        public SynapseConnection(Location center, Shape.ShapeCore shape, int count, int connectcount, double defaultAxonLength = 0.1)
+            : base(center, shape, count, connectcount, defaultAxonLength)
         {
 
         }
@@ -18,7 +18,7 @@ namespace Connectome.Field.Domain.Transporter
         public override void InnerStep(
             ref RNdArray state, ref RNdArray value, ref RNdArray signal, ref RNdArray potential, ref RNdArray activity,
             ref RNdArray weight,
-            ref RNdArray connectionCount, ref RNdArray connectionIndex, ref RNdArray connectionStartPosition)
+            RNdArray connectionCount, RNdArray connectionStartPosition, RNdArray connectionIndex)
         {
             for (int i0 = 0; i0 < Count; i0++)
             {
@@ -30,12 +30,13 @@ namespace Connectome.Field.Domain.Transporter
                 int tid = -1;
                 float ptlmax = 0, ptlmin = 100, ptldiff = 0, tptl = 0;
                 float dp = 0;
+                int maxtid = -1;
                 for (int i = 0; i < count; i++)
                 {
                     tid = (int)connectionIndex[start + i];
                     dp += weight[start + i] * signal[tid];
                     tptl = potential[tid];
-                    if (ptlmax < tptl) { ptlmax = tptl; }
+                    if (ptlmax < tptl) { ptlmax = tptl; maxtid = tid; }
                     if (ptlmin > tptl) { ptlmin = tptl; }
                 }
                 ptldiff = ptlmax - ptlmin;
@@ -51,8 +52,8 @@ namespace Connectome.Field.Domain.Transporter
                     }
                     else
                     {
+                        value[idx] *= 0.5;
                         value[idx] += dp;
-                        value[idx] *= 0.75;
                         float sum = 0;
                         if (ptldiff > 0)
                         {
@@ -106,8 +107,8 @@ namespace Connectome.Field.Domain.Transporter
                     }
                     else
                     {
-                        value[idx] += 0.01;
                         value[idx] *= 0.9;
+                        value[idx] += 0.01;
                     }
                 }
 
@@ -116,10 +117,7 @@ namespace Connectome.Field.Domain.Transporter
                 else
                 { signal[idx] = 0; }
 
-                ps = (signal[idx] - ps);
-                activity[idx] = 0.9 * activity[idx] + (1 - 0.9) * (ps > 0 ? ps : 0);
-                pv = (value[idx] - pv);
-                potential[idx] = 0.9 * potential[idx] + (1 - 0.9) * (pv > 0 ? pv : 0);
+                Calc_PotentialandActivity(idx, ps, pv, signal, value, ref potential, ref activity);
             }
         }
     }

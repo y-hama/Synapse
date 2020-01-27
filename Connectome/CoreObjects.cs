@@ -22,7 +22,7 @@ namespace Connectome
         public static double AxsonConnectionMax { get; set; }
         public static double AxsonConnectionMin { get; set; }
 
-        public static List<Field.FieldCore> Fields { get; set; } = new List<Field.FieldCore>();
+        public static List<Field.Style.FieldCore> Fields { get; set; } = new List<Field.Style.FieldCore>();
 
         public static List<Field.Domain.CellInfomation> Cells { get; set; } = new List<Field.Domain.CellInfomation>();
         public static int Count { get; set; }

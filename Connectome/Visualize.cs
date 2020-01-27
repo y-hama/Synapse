@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 
 namespace Connectome
 {
@@ -98,9 +99,14 @@ namespace Connectome
                                 var edgec = e.Infomations.Find(n => n.ID == id);
                                 float xx = (float)(size * (edgec.LocalLocation.X + areawidth) / (2 * areawidth));
                                 float yy = (float)(size * (edgec.LocalLocation.Y + areawidth) / (2 * areawidth));
-                                if (delta == 0) { alp = (byte)(byte.MaxValue * (0.5 * cell.ConnectionWeight[i] + 0.5)); }
-                                else { alp = (byte)(byte.MaxValue * ((0.5 * (cell.ConnectionWeight[i]) / max) + 0.5)); }
-                                g.DrawLine(new Pen(Color.FromArgb(alp, linePen.Color)), new PointF(x, y), new PointF(xx, yy));
+                                if (delta == 0) { alp = (byte)(byte.MaxValue * (0.75 * cell.ConnectionWeight[i] + 0.25)); }
+                                else { alp = (byte)(byte.MaxValue * ((0.75 * (cell.ConnectionWeight[i]) / delta) + 0.25)); }
+                                PointF s = new PointF(xx, yy), t = new PointF(x, y);
+                                if (s != t)
+                                {
+                                    LinearGradientBrush gb = new LinearGradientBrush(s, t, Color.FromArgb(alpha, Color.DarkGreen), Color.FromArgb(alpha, Color.DarkMagenta));
+                                    g.DrawLine(new Pen(gb), s, t);
+                                }
                             }
                         }
                     }

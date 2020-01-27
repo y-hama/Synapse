@@ -45,15 +45,20 @@
   <ItemGroup>
     <Compile Include="Core.cs" />
     <Compile Include="CoreObjects.cs" />
-    <Compile Include="Field\Area.cs" />
+    <Compile Include="Field\Domain\Shape\Bypass.cs" />
+    <Compile Include="Field\Domain\Shape\Rectangular.cs" />
+    <Compile Include="Field\Domain\Shape\ShapeCore.cs" />
+    <Compile Include="Field\Domain\Shape\Ellipse.cs" />
+    <Compile Include="Field\Domain\Shape\EllipseSurface.cs" />
+    <Compile Include="Field\Style\Area.cs" />
     <Compile Include="Field\Domain\CellInfomation.cs" />
     <Compile Include="Field\Domain\DomainCore.cs" />
     <Compile Include="Field\Domain\Sensor\RandomPulser.cs" />
     <Compile Include="Field\Domain\Sensor\SensorDomain.cs" />
     <Compile Include="Field\Domain\Transporter\SynapseConnection.cs" />
     <Compile Include="Field\Domain\Transporter\TransporterDomain.cs" />
-    <Compile Include="Field\FieldCore.cs" />
-    <Compile Include="Field\Receptor.cs" />
+    <Compile Include="Field\Style\FieldCore.cs" />
+    <Compile Include="Field\Style\Receptor.cs" />
     <Compile Include="Gpgpu\FunctionCore.cs" />
     <Compile Include="Location.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

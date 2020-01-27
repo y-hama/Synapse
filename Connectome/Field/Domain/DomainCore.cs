@@ -20,7 +20,7 @@ namespace Connectome.Field.Domain
 
         public Location.LocationCornerSet AreaCorner { get; private set; }
 
-        public DomainCore(CellInfomation.CellType type, Location center, double areasize, int count, int connectcount, double defaultAxonLength = 0.1)
+        public DomainCore(CellInfomation.CellType type, Location center, Shape.ShapeCore shape, int count, int connectcount, double defaultAxonLength = 0.1)
         {
             Center = center;
             Count = count;
@@ -29,7 +29,7 @@ namespace Connectome.Field.Domain
             List<int> cnnctcnt = new List<int>(new int[count]);
             for (int i = 0; i < count; i++)
             {
-                list[i] = new Location(random, areasize);
+                list[i] = new Location(random, shape.CheckBorder);
             }
             if (type == CellInfomation.CellType.Synapse)
             {
@@ -63,7 +63,7 @@ namespace Connectome.Field.Domain
                     list[0] = center;
                     for (int i = 0; i < count; i++)
                     {
-                        axonLength[i] = areasize;
+                        axonLength[i] = defaultAxonLength;
                     }
                 }
             }
@@ -75,8 +75,17 @@ namespace Connectome.Field.Domain
             }
             ID = new RNdArray(_ID.ToArray());
 
-            Location expand = new Location(areasize, areasize, areasize);
-            AreaCorner = new Location.LocationCornerSet(center - expand, center + expand);
+            AreaCorner = shape.AreaCorner(center);
+        }
+
+        protected void Calc_PotentialandActivity(int idx, double ps, double pv, RNdArray signal, RNdArray value, ref RNdArray potential, ref RNdArray activity)
+        {
+            double rho = 0.95;
+
+            ps = (signal[idx] - ps);
+            activity[idx] = rho * activity[idx] + (1 - rho) * (ps > 0 ? ps : -ps);
+            pv = (value[idx] - pv);
+            potential[idx] = rho * potential[idx] + (1 - rho) * (pv > 0 ? pv : -pv);
         }
     }
 }

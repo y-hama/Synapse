@@ -52,13 +52,14 @@ namespace ConnectomeVisualizer.Forms
             Visualization.ImageSize = Math.Min(pictureBox1.Width, pictureBox1.Height);
             if (Visualization.ImageSize > 0)
             {
+                double delta = 0.05;
                 if (PressedButton == MouseButtons.Left)
                 {
-                    Visualization.Th -= 0.01;
+                    Visualization.Th -= delta;
                 }
                 else if (PressedButton == MouseButtons.Right)
                 {
-                    Visualization.Th += 0.01;
+                    Visualization.Th += delta;
                 }
                 if (Visualization.Th > 2 * Math.PI)
                 { Visualization.Th -= 2 * Math.PI; }

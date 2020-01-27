@@ -8,6 +8,8 @@ namespace Connectome
 {
     public class Location
     {
+        public delegate bool CheckBorder(ref Location location);
+
         public class LocationCornerSet
         {
             public Location AreaMinState { get; private set; }
@@ -76,6 +78,26 @@ namespace Connectome
                         check = true;
                     }
                 }
+            }
+        }
+        public Location(Random random, CheckBorder func)
+        {
+            if (random != null)
+            {
+                bool check = false;
+                var loc = new Location();
+                while (!check)
+                {
+                    loc.X = (random.NextDouble() * 2 - 1);
+                    loc.Y = (random.NextDouble() * 2 - 1);
+                    loc.Z = (random.NextDouble() * 2 - 1);
+
+                    if (func(ref loc))
+                    {
+                        check = true;
+                    }
+                }
+                X = loc.X; Y = loc.Y; Z = loc.Z;
             }
         }
 

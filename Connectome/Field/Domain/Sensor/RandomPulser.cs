@@ -9,8 +9,8 @@ namespace Connectome.Field.Domain.Sensor
 {
     class RandomPulser : SensorDomain
     {
-        public RandomPulser(Location center, double areasize, int count)
-            : base(center, areasize, count)
+        public RandomPulser(Location center, Shape.ShapeCore shape, int count)
+            : base(center, shape, count)
         {
 
         }
@@ -25,22 +25,13 @@ namespace Connectome.Field.Domain.Sensor
 
                 float ps = signal[idx];
                 float pv = value[idx];
-                if (!check1)
-                {
-                    signal[idx] = value[idx] = 0.5 * random.NextDouble();
-                }
-                else
-                {
-                    signal[idx] = value[idx] = 0;//random.NextDouble();
-                }
+                if (cnt > 10) { signal[idx] = value[idx] = 1; }
+                else { signal[idx] = value[idx] = 0; }
 
-                ps = (signal[idx] - ps);
-                activity[idx] = 0.9 * activity[idx] + (1 - 0.9) * (ps > 0 ? ps : 0);
-                pv = (value[idx] - pv);
-                potential[idx] = 0.9 * potential[idx] + (1 - 0.9) * (pv > 0 ? pv : 0);
+                Calc_PotentialandActivity(idx, ps, pv, signal, value, ref potential, ref activity);
             }
-            if (!check1 && cnt > 10) { check1 = true; }
-            else { cnt++; }
+            if (!check1 && cnt < 0) { cnt = random.Next(10, 20); }
+            else { cnt--; }
         }
     }
 }
