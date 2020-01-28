@@ -20,7 +20,7 @@ namespace Connectome.Field.Domain
 
         public Location.LocationCornerSet AreaCorner { get; private set; }
 
-        public DomainCore(CellInfomation.CellType type, Location center, Shape.ShapeCore shape, int count, int connectcount, double defaultAxonLength = 0.1)
+        public DomainCore(CellInfomation.CellType type, Location center, Shape.ShapeCore shape, int count, int connectcount, double defaultAxonLength = 0)
         {
             Center = center;
             Count = count;
@@ -54,7 +54,7 @@ namespace Connectome.Field.Domain
                             {
                                 check = true;
                             }
-                            else { axonLength[i] += defaultAxonLength / 10; }
+                            else { axonLength[i] += shape.LocalMinArea / 10; }
                         }
                     }
                 }
@@ -63,7 +63,7 @@ namespace Connectome.Field.Domain
                     list[0] = center;
                     for (int i = 0; i < count; i++)
                     {
-                        axonLength[i] = defaultAxonLength;
+                        axonLength[i] = (defaultAxonLength + shape.LocalMinArea) / 2;
                     }
                 }
             }

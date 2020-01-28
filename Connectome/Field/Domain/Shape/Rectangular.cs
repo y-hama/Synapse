@@ -8,6 +8,14 @@ namespace Connectome.Field.Domain.Shape
 {
     class Rectangular : ShapeCore
     {
+        public override double LocalMinArea
+        {
+            get
+            {
+                return Math.Min(Math.Min(AreaSize.X, AreaSize.Y), AreaSize.Z);
+            }
+        }
+
         private Location AreaSize { get; set; }
 
         public Rectangular(double width, double height, double depth)
@@ -17,7 +25,7 @@ namespace Connectome.Field.Domain.Shape
 
         public override Location.LocationCornerSet AreaCorner(Location center)
         {
-            Location expand = new Location(AreaSize.X, AreaSize.X, AreaSize.X);
+            Location expand = new Location(AreaSize.X, AreaSize.Y, AreaSize.Z);
             return new Location.LocationCornerSet(center - expand, center + expand);
         }
 

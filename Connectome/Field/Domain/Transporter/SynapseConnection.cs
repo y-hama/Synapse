@@ -9,7 +9,7 @@ namespace Connectome.Field.Domain.Transporter
 {
     class SynapseConnection : TransporterDomain
     {
-        public SynapseConnection(Location center, Shape.ShapeCore shape, int count, int connectcount, double defaultAxonLength = 0.1)
+        public SynapseConnection(Location center, Shape.ShapeCore shape, int count, int connectcount, double defaultAxonLength = 0)
             : base(center, shape, count, connectcount, defaultAxonLength)
         {
 
@@ -93,7 +93,7 @@ namespace Connectome.Field.Domain.Transporter
                     }
                     else
                     {
-                        value[idx] *= 0.9;
+                        value[idx] *= 0.95;
                         value[idx] -= 0.05;
                     }
                 }
@@ -108,11 +108,11 @@ namespace Connectome.Field.Domain.Transporter
                     else
                     {
                         value[idx] *= 0.9;
-                        value[idx] += 0.01;
+                        value[idx] += 0.001;
                     }
                 }
 
-                if (value[idx] > 0.5)
+                if (value[idx] > 0.75)
                 { signal[idx] = 1; }
                 else
                 { signal[idx] = 0; }

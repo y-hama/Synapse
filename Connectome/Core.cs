@@ -256,23 +256,42 @@ namespace Connectome
         #region Connectome Creator
         private static void CreateConnectome()
         {
-            int cnt = 1000;
+            Random random = new Random();
+            int cnt = 100;
 
-            #region RandomPulser(0,0,0) and Synapse(xy:-5<>5)
+            List<Location> center = new List<Location>();
+            center.Add(new Location());
+            for (int i = 0; i < 10; i++)
+            {
+                center.Add(new Location(random, 10));
+            }
+
+            for (int i = 0; i < center.Count; i++)
+            {
+                AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
+                    center[i], new Ellipse(1), cnt, 4)));
+            }
+
+            for (int i = 0; i < center.Count; i++)
+            {
+                //for (int j = i; j < center.Count; j++)
+                //{
+                //    if (i == j) { continue; }
+                //    //if (random.NextDouble() < 0.25)
+                //    {
+                //        AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
+                //            center[i], new Bypass(center[j] - center[i], 0.25), cnt, 10)));
+                //    }
+                //}
+                AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
+                    center[i], new Bypass(center[random.Next(center.Count)] - center[i], 0.25), cnt, 4)));
+            }
+
+            #region RandomPulser(0,0,0) 
             var center1 = new Location(0, 0, 0);
             AddField(new Field.Style.Receptor(new Field.Domain.Sensor.RandomPulser(
-                center1, new Ellipse(0.1, 0.1, 0.1), 10)));
+                center1, new Ellipse(0.5), 10)));
 
-            //AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
-            //    center1, new Ellipse(1), cnt, 3)));
-            //AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
-            //    center1, new EllipseSurface(2), cnt, 3)));
-            //AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
-            //    center1, new EllipseSurface(3), cnt, 3)));
-            AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
-                center1, new Bypass(new Location(0, 0, 0), new Location(3, 0, 0), 0.1), cnt, 3)));
-            //AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
-            //    center1, new Bypass(new Location(0, 2, -10), new Location(0, -10, 5), 1), cnt, 3)));
             #endregion
         }
         #endregion

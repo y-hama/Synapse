@@ -9,7 +9,7 @@ namespace Connectome.Field.Domain.Transporter
 {
     abstract class TransporterDomain : DomainCore
     {
-        public TransporterDomain(Location center, Shape.ShapeCore shape, int count, int connectcount, double defaultAxonLength = 0.1)
+        public TransporterDomain(Location center, Shape.ShapeCore shape, int count, int connectcount, double defaultAxonLength = 0)
             : base(CellInfomation.CellType.Synapse, center, shape, count, connectcount, defaultAxonLength)
         {
 

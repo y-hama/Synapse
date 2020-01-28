@@ -8,16 +8,26 @@ namespace Connectome.Field.Domain.Shape
 {
     class Bypass : ShapeCore
     {
+        public override double LocalMinArea
+        {
+            get
+            {
+                return Thickness;
+            }
+        }
+
 
         private Location Start { get; set; }
+        private Location Center { get; set; }
         private Location End { get; set; }
         private Location v { get; set; }
         private double Thickness { get; set; }
 
-        public Bypass(Location start, Location end, double thickness)
+        public Bypass(Location end, double thickness)
         {
-            Start = start; End = end; Thickness = thickness;
-            v = (end - Start).Normalize();
+            Start = new Location(); End = end; Thickness = thickness;
+            Center = (Start + End) / 2;
+            v = (End - Start).Normalize();
         }
 
         public override Location.LocationCornerSet AreaCorner(Location center)
@@ -25,15 +35,56 @@ namespace Connectome.Field.Domain.Shape
             return new Location.LocationCornerSet(center + Start, center + End);
         }
 
+        private void RandomToArea(Location random, out Location area)
+        {
+            area = new Location();
+            double areamin, areamax;
+
+            areamin = Math.Min(Start.X, End.X);
+            areamax = Math.Max(Start.X, End.X);
+            if (Math.Abs(areamin * areamin - areamax * areamax) < 1e-9)
+            {
+                area.X = Thickness * random.X;
+            }
+            else
+            {
+                area.X = ((random.X + 1) / 2) * (areamax - areamin) + areamin;
+            }
+            areamin = Math.Min(Start.Y, End.Y);
+            areamax = Math.Max(Start.Y, End.Y);
+            if (Math.Abs(areamin * areamin - areamax * areamax) < 1e-9)
+            {
+                area.Y = Thickness * random.Y;
+            }
+            else
+            {
+                area.Y = ((random.Y + 1) / 2) * (areamax - areamin) + areamin;
+            }
+            areamin = Math.Min(Start.Z, End.Z);
+            areamax = Math.Max(Start.Z, End.Z);
+            if (Math.Abs(areamin * areamin - areamax * areamax) < 1e-9)
+            {
+                area.Z = Thickness * random.Z;
+            }
+            else
+            {
+                area.Z = ((random.Z + 1) / 2) * (areamax - areamin) + areamin;
+            }
+        }
+
         public override bool CheckBorder(ref Location loc)
         {
-            loc.X = (End.X - Start.X) != 0 ? (End.X - Start.X) * (loc.X + 1) / 2 + Start.X : loc.X + Start.X;
-            loc.Y = (End.Y - Start.Y) != 0 ? (End.Y - Start.Y) * (loc.Y + 1) / 2 + Start.Y : loc.Y + Start.Y;
-            loc.Z = (End.Z - Start.Z) != 0 ? (End.Z - Start.Z) * (loc.Z + 1) / 2 + Start.Z : loc.Z + Start.Z;
+            var _loc = loc;
+            RandomToArea(loc, out _loc);
+            loc = _loc;
 
-            double ts = (v.X * (loc.X - End.X) + v.Y * (loc.Y - End.Y) + v.Z * (loc.Z - End.Z)) / (v.X * v.X + v.Y * v.Y + v.Z * v.Z);
-            if (ts < Thickness) { return true; }
-            return false;
+            double t = (Start + loc) * v;
+            Location H = Start + t * v;
+            double dist = H.DistanceTo(loc);
+            if (dist < Thickness)
+            { return true; }
+            else
+            { return false; }
         }
     }
 }

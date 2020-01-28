@@ -243,5 +243,13 @@ namespace Connectome
         {
             return new Location(scale * l2.X, scale * l2.Y, scale * l2.Z);
         }
+        public static Location operator /(Location l1, double scale)
+        {
+            return new Location(l1.X / scale, l1.Y / scale, l1.Z / scale);
+        }
+        public static double operator *(Location l1, Location l2)
+        {
+            return (l1.X * l2.X + l1.Y * l2.Y + l1.Z * l2.Z);
+        }
     }
 }
