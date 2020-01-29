@@ -52,7 +52,7 @@ namespace Connectome.Field.Domain.Transporter
                     }
                     else
                     {
-                        value[idx] *= 0.5;
+                        value[idx] *= 0.25;
                         value[idx] += dp;
                         float sum = 0;
                         if (ptldiff > 0)
@@ -60,12 +60,15 @@ namespace Connectome.Field.Domain.Transporter
                             for (int i = 0; i < count; i++)
                             {
                                 tid = (int)connectionIndex[start + i];
-                                weight[start + i] += (potential[tid] - ptlmin) / ptldiff;
+                                weight[start + i] += activity[tid] * (potential[tid] - ptlmin) / ptldiff;
                                 sum += weight[start + i];
                             }
-                            for (int i = 0; i < count; i++)
+                            if (sum > 1)
                             {
-                                weight[start + i] /= sum;
+                                for (int i = 0; i < count; i++)
+                                {
+                                    weight[start + i] /= sum;
+                                }
                             }
                         }
                     }
@@ -116,8 +119,6 @@ namespace Connectome.Field.Domain.Transporter
                 { signal[idx] = 1; }
                 else
                 { signal[idx] = 0; }
-
-                Calc_PotentialandActivity(idx, ps, pv, signal, value, ref potential, ref activity);
             }
         }
     }

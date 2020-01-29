@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Connectome.Field.Style;
+using Connectome.Field.Domain.Transporter;
 using Connectome.Field.Domain.Shape;
 
 namespace Connectome
@@ -229,7 +231,7 @@ namespace Connectome
 
             CoreObjects.Infomation.Weight = new Components.RNdArray((int)CoreObjects.Infomation.ConnectionCount.Data.Sum(x => x.Value));
 
-
+            Random random = new Random();
             CoreObjects.Infomation.ConnectionIndex = new Components.RNdArray(CoreObjects.Infomation.Weight.Length);
             int index = 0;
             for (int i = 0; i < CoreObjects.Count; i++)
@@ -257,42 +259,20 @@ namespace Connectome
         private static void CreateConnectome()
         {
             Random random = new Random();
-            int cnt = 100;
-
-            List<Location> center = new List<Location>();
-            center.Add(new Location());
-            for (int i = 0; i < 10; i++)
-            {
-                center.Add(new Location(random, 10));
-            }
-
-            for (int i = 0; i < center.Count; i++)
-            {
-                AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
-                    center[i], new Ellipse(1), cnt, 4)));
-            }
-
-            for (int i = 0; i < center.Count; i++)
-            {
-                //for (int j = i; j < center.Count; j++)
-                //{
-                //    if (i == j) { continue; }
-                //    //if (random.NextDouble() < 0.25)
-                //    {
-                //        AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
-                //            center[i], new Bypass(center[j] - center[i], 0.25), cnt, 10)));
-                //    }
-                //}
-                AddField(new Field.Style.Area(new Field.Domain.Transporter.SynapseConnection(
-                    center[i], new Bypass(center[random.Next(center.Count)] - center[i], 0.25), cnt, 4)));
-            }
+            int cnt = 30;
 
             #region RandomPulser(0,0,0) 
-            var center1 = new Location(0, 0, 0);
+            var center1 = new Location(-1, 0, 0);
             AddField(new Field.Style.Receptor(new Field.Domain.Sensor.RandomPulser(
-                center1, new Ellipse(0.5), 10)));
-
+                center1, new EllipseSurface(0.25), 10)));
             #endregion
+
+            AddField(new Area(new SynapseConnection(new Location(), new EllipseSurface(1), cnt, 4)));
+
+            AddField(new Area(new SynapseConnection(new Location(1, 0, 0), new Bypass(new Location(0, 2, 3), 0.1), 100, 8)));
+
+            AddField(new Area(new SynapseConnection(new Location(1, 2, 3), new EllipseSurface(1), cnt, 4)));
+
         }
         #endregion
     }

@@ -27,8 +27,6 @@ namespace Connectome.Field.Domain.Sensor
                 float pv = value[idx];
                 if (cnt > 10) { signal[idx] = value[idx] = 1; }
                 else { signal[idx] = value[idx] = 0; }
-
-                Calc_PotentialandActivity(idx, ps, pv, signal, value, ref potential, ref activity);
             }
             if (!check1 && cnt < 0) { cnt = random.Next(10, 20); }
             else { cnt--; }

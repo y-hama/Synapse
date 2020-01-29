@@ -84,27 +84,30 @@ namespace Connectome
                     double zodr = (1 - itemorder);
                     byte alpha = (byte)(zodr * byte.MaxValue);
 
+                    double oparat = 1;
                     if (drawConnectEdge)
                     {
+                        double alpx = 0.9;
+                        oparat = 0.3;
                         if (cell.Type == Field.Domain.CellInfomation.CellType.Synapse)
                         {
                             double max = cell.ConnectionWeight.Max();
                             double min = cell.ConnectionWeight.Min();
                             double sum = cell.ConnectionWeight.Sum();
                             double delta = max - min;
-                            byte alp = 0;
+                            double alp = 0;
                             for (int i = 0; i < cell.ConnectedCells.Count; i++)
                             {
                                 int id = cell.ConnectedCells[i].ID;
                                 var edgec = e.Infomations.Find(n => n.ID == id);
                                 float xx = (float)(size * (edgec.LocalLocation.X + areawidth) / (2 * areawidth));
                                 float yy = (float)(size * (edgec.LocalLocation.Y + areawidth) / (2 * areawidth));
-                                if (delta == 0) { alp = (byte)(byte.MaxValue * (0.75 * cell.ConnectionWeight[i] + 0.25)); }
-                                else { alp = (byte)(byte.MaxValue * ((0.75 * (cell.ConnectionWeight[i]) / delta) + 0.25)); }
+                                if (delta == 0) { alp = (alpx * cell.ConnectionWeight[i] + (1 - alpx)); }
+                                else { alp = ((alpx * (cell.ConnectionWeight[i]) / delta) + (1 - alpx)); }
                                 PointF s = new PointF(xx, yy), t = new PointF(x, y);
                                 if (s != t)
                                 {
-                                    LinearGradientBrush gb = new LinearGradientBrush(s, t, Color.FromArgb(alpha, Color.DarkGreen), Color.FromArgb(alpha, Color.DarkMagenta));
+                                    LinearGradientBrush gb = new LinearGradientBrush(s, t, Color.FromArgb((byte)(alpha * alp), Color.DarkGreen), Color.FromArgb((byte)(alpha * alp), Color.DarkMagenta));
                                     g.DrawLine(new Pen(gb), s, t);
                                 }
                             }
@@ -112,6 +115,7 @@ namespace Connectome
                     }
                     if (drawCell)
                     {
+                        alpha = (byte)(alpha * oparat);
                         float elemsize = (float)(sizeoder * ((1 - sizemin) * zodr + sizemin));
                         RectangleF rect = new RectangleF(x - elemsize / 2, y - elemsize / 2, elemsize, elemsize);
                         byte valuebrightness = (byte)(byte.MaxValue * value);

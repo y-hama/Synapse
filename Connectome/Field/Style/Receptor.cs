@@ -24,14 +24,18 @@ namespace Connectome.Field.Style
 
             (Domain as Domain.Sensor.SensorDomain).InnerStep(ref value, ref signal, ref potential, ref activity);
 
-            for (int i = 0; i < Domain.Count; i++)
+            Tasks.ForStep(0, Domain.Count, i =>
             {
                 int idx = (int)Domain.ID[i];
                 CoreObjects.Infomation.Value[idx] = value[idx];
                 CoreObjects.Infomation.Signal[idx] = signal[idx];
-                CoreObjects.Infomation.Potential[idx] = potential[idx];
-                CoreObjects.Infomation.Activity[idx] = activity[idx];
-            }
+
+                var p = potential[idx];
+                var a = activity[idx];
+                Field.Domain.DomainCore.Calc_PotentialandActivity(1, 1, ref p, ref a);
+                CoreObjects.Infomation.Potential[idx] = p;
+                CoreObjects.Infomation.Activity[idx] = a;
+            });
         }
 
     }

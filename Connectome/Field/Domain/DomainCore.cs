@@ -27,65 +27,79 @@ namespace Connectome.Field.Domain
             List<Location> list = new List<Location>(new Location[count]);
             List<double> axonLength = new List<double>(new double[count]);
             List<int> cnnctcnt = new List<int>(new int[count]);
-            for (int i = 0; i < count; i++)
+            Tasks.ForStep(0, count, i =>
             {
                 list[i] = new Location(random, shape.CheckBorder);
-            }
+            });
             if (type == CellInfomation.CellType.Synapse)
             {
+                int cnnctcnttarget = Math.Min(count / 2, connectcount);
                 if (count > 1)
                 {
-                    for (int i = 0; i < count; i++)
+                    Tasks.ForParallel(0, count, i =>
                     {
                         axonLength[i] = defaultAxonLength;
                         bool check = false;
+                        double nearestdisttmp = 0, dist = 0;
                         while (!check)
                         {
+                            double nearestdist = double.MaxValue;
                             cnnctcnt[i] = 0;
-                            for (int j = 0; j < count; j++)
+                            Tasks.ForStep(0, count, j =>
                             {
-                                if (i == j) { continue; }
-                                if (list[i].DistanceTo(list[j]) < axonLength[i])
+                                if (i == j) { return; }
+                                dist = list[i].DistanceTo(list[j]);
+                                if (dist < axonLength[i])
                                 {
                                     cnnctcnt[i]++;
                                 }
-                            }
-                            if (cnnctcnt[i] >= Math.Min(count / 2, connectcount))
+                                if (nearestdisttmp < dist && nearestdist > dist)
+                                {
+                                    nearestdist = dist;
+                                }
+                            });
+                            nearestdisttmp = nearestdist;
+                            if (cnnctcnt[i] >= cnnctcnttarget)
                             {
                                 check = true;
                             }
-                            else { axonLength[i] += shape.LocalMinArea / 10; }
+                            else
+                            {
+                                axonLength[i] = nearestdist;
+                            }
                         }
-                    }
+                    });
                 }
                 else
                 {
                     list[0] = center;
-                    for (int i = 0; i < count; i++)
+                    Tasks.ForStep(0, count, i =>
                     {
                         axonLength[i] = (defaultAxonLength + shape.LocalMinArea) / 2;
-                    }
+                    });
                 }
             }
-            for (int i = 0; i < count; i++)
+            Tasks.ForStep(0, count, i =>
             {
                 var cell = new CellInfomation(type, list[i] + center) { AxsonLength = axonLength[i] };
                 _ID.Add(cell.ID);
                 CoreObjects.Cells.Add(cell);
-            }
+            });
             ID = new RNdArray(_ID.ToArray());
 
             AreaCorner = shape.AreaCorner(center);
         }
 
-        protected void Calc_PotentialandActivity(int idx, double ps, double pv, RNdArray signal, RNdArray value, ref RNdArray potential, ref RNdArray activity)
+        public static void Calc_PotentialandActivity(Real signal, Real value, ref Real potential, ref Real activity)
         {
-            double rho = 0.95;
+            double offsetm = 0.01;
+            double adda = 0;
+            if (signal > 0.5) { adda = 1; }
+            activity += adda - offsetm;
+            if (activity < 0) { activity = 0; } else if (activity > 1) { activity = 1; }
 
-            ps = (signal[idx] - ps);
-            activity[idx] = rho * activity[idx] + (1 - rho) * (ps > 0 ? ps : -ps);
-            pv = (value[idx] - pv);
-            potential[idx] = rho * potential[idx] + (1 - rho) * (pv > 0 ? pv : -pv);
+            double rho = 0.5;
+            potential = rho * potential + (1 - rho) * value;
         }
     }
 }

@@ -30,23 +30,28 @@ namespace Connectome.Field.Style
             (Domain as Domain.Transporter.TransporterDomain).InnerStep
                 (ref state, ref value, ref signal, ref potential, ref activity,
                  ref weight,
-                   connectionCount, connectionStartPosition, connectionIndex);
+                 connectionCount, connectionStartPosition, connectionIndex);
 
-            for (int i = 0; i < Domain.Count; i++)
+            Tasks.ForStep(0, Domain.Count, i =>
             {
                 int idx = (int)Domain.ID[i];
                 CoreObjects.Infomation.State[idx] = state[idx];
                 CoreObjects.Infomation.Value[idx] = value[idx];
                 CoreObjects.Infomation.Signal[idx] = signal[idx];
-                CoreObjects.Infomation.Potential[idx] = potential[idx];
-                CoreObjects.Infomation.Activity[idx] = activity[idx];
+
+                var p = potential[idx];
+                var a = activity[idx];
+                Field.Domain.DomainCore.Calc_PotentialandActivity(signal[idx], value[idx], ref p, ref a);
+                CoreObjects.Infomation.Potential[idx] = p;
+                CoreObjects.Infomation.Activity[idx] = a;
+
                 int csidx = (int)connectionStartPosition[idx];
                 int cnctcnt = (int)connectionCount[idx];
-                for (int j = 0; j < cnctcnt; j++)
+                Tasks.ForStep(0, cnctcnt, j =>
                 {
                     CoreObjects.Infomation.Weight[csidx + j] = weight[csidx + j];
-                }
-            }
+                });
+            });
         }
     }
 }
