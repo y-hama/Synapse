@@ -29,8 +29,18 @@ namespace Connectome.Field.Domain.Shape
             return new Location.LocationCornerSet(center - expand, center + expand);
         }
 
+        public override Location GetAlignmentLocation(int index)
+        {
+            int j = (int)(index / AreaSize.X);
+            int i = (int)(index - j * AreaSize.X);
+            return new Location(i - AreaSize.X / 2, j - AreaSize.Y / 2, AreaSize.Z);
+        }
+
         public override bool CheckBorder(ref Location loc)
         {
+            loc.X *= AreaSize.X / 2;
+            loc.Y *= AreaSize.Y / 2;
+            loc.Z *= AreaSize.Z / 2;
             if (Math.Abs(loc.X) < Math.Abs(AreaSize.X)
              && Math.Abs(loc.Y) < Math.Abs(AreaSize.Y)
              && Math.Abs(loc.Z) < Math.Abs(AreaSize.Z))

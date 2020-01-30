@@ -53,13 +53,25 @@ namespace ConnectomeVisualizer.Forms
             if (Visualization.ImageSize > 0)
             {
                 double delta = 0.05;
-                if (PressedButton == MouseButtons.Left)
+                switch (PressedButton)
                 {
-                    Visualization.Th -= delta;
-                }
-                else if (PressedButton == MouseButtons.Right)
-                {
-                    Visualization.Th += delta;
+                    case MouseButtons.Left:
+                        Visualization.Th -= delta;
+                        break;
+                    case MouseButtons.None:
+                        break;
+                    case MouseButtons.Right:
+                        Visualization.Th += delta;
+                        break;
+                    case MouseButtons.Middle:
+                        Visualization.Th = 0;
+                        break;
+                    case MouseButtons.XButton1:
+                        break;
+                    case MouseButtons.XButton2:
+                        break;
+                    default:
+                        break;
                 }
                 if (Visualization.Th > 2 * Math.PI)
                 { Visualization.Th -= 2 * Math.PI; }

@@ -34,10 +34,15 @@ namespace Connectome.Field.Domain.Shape
             return new Location.LocationCornerSet(center - expand, center + expand);
         }
 
+        public override Location GetAlignmentLocation(int index)
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool CheckBorder(ref Location loc)
         {
             loc.X *= AreaSize.X;
-            loc.Y *= AreaSize.X;
+            loc.Y *= AreaSize.Y;
             loc.Z *= AreaSize.Z;
 
             double x = loc.X / AreaSize.X;

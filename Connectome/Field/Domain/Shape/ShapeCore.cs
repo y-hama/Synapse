@@ -13,5 +13,7 @@ namespace Connectome.Field.Domain.Shape
         public abstract bool CheckBorder(ref Location loc);
 
         public abstract Location.LocationCornerSet AreaCorner(Location center);
+
+        public abstract Location GetAlignmentLocation(int index);
     }
 }

@@ -45,6 +45,8 @@
   <ItemGroup>
     <Compile Include="Core.cs" />
     <Compile Include="CoreObjects.cs" />
+    <Compile Include="Field\Domain\Sensor\DiffVision.cs" />
+    <Compile Include="Field\Domain\Sensor\Vision.cs" />
     <Compile Include="Field\Domain\Shape\Bypass.cs" />
     <Compile Include="Field\Domain\Shape\Rectangular.cs" />
     <Compile Include="Field\Domain\Shape\ShapeCore.cs" />

@@ -31,7 +31,10 @@ namespace Connectome.Field.Style
                 {
                     CurrentStep();
                     StepOver++;
-                    while (!CanNextStep() && !CoreObjects.IsTerminated) { System.Threading.Thread.Sleep(1); }
+                    if (this is Area)
+                    {
+                        while (!CanNextStep() && !CoreObjects.IsTerminated) { System.Threading.Thread.Sleep(1); }
+                    }
                     System.Threading.Thread.Sleep(CoreObjects.TimeScale);
                 }
             }).Start();
@@ -40,7 +43,7 @@ namespace Connectome.Field.Style
         private bool CanNextStep()
         {
             bool check = false;
-            var list = CoreObjects.Fields.Select(x => x.StepOver).Distinct().ToArray();
+            var list = CoreObjects.Fields.FindAll(x => x is Area).Select(x => x.StepOver).Distinct().ToArray();
 
             if (list.Length == 1)
             {

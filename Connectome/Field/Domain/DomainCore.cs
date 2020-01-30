@@ -20,17 +20,27 @@ namespace Connectome.Field.Domain
 
         public Location.LocationCornerSet AreaCorner { get; private set; }
 
-        public DomainCore(CellInfomation.CellType type, Location center, Shape.ShapeCore shape, int count, int connectcount, double defaultAxonLength = 0)
+        public DomainCore(CellInfomation.CellType type, Location center, Shape.ShapeCore shape, int count, int connectcount, double defaultAxonLength = 0, bool alignment = false)
         {
             Center = center;
             Count = count;
             List<Location> list = new List<Location>(new Location[count]);
             List<double> axonLength = new List<double>(new double[count]);
             List<int> cnnctcnt = new List<int>(new int[count]);
-            Tasks.ForStep(0, count, i =>
+            if (alignment)
             {
-                list[i] = new Location(random, shape.CheckBorder);
-            });
+                Tasks.ForStep(0, count, i =>
+                {
+                    list[i] = shape.GetAlignmentLocation(i);
+                });
+            }
+            else
+            {
+                Tasks.ForStep(0, count, i =>
+                {
+                    list[i] = new Location(random, shape.CheckBorder);
+                });
+            }
             if (type == CellInfomation.CellType.Synapse)
             {
                 int cnnctcnttarget = Math.Min(count / 2, connectcount);

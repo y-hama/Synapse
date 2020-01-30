@@ -70,7 +70,7 @@ namespace Connectome
                 double far = z_order.Max();
                 double areasize = far == near ? 1 : far - near;
 
-                double sizeoder = Math.Max(10, size / 50), sizemin = 0.75;
+                double sizeoder = Math.Max(10, size / 100), sizemin = 0.75;
 
                 Pen linePen = new Pen(Color.FromArgb(128, 128, 128));
                 foreach (var cell in e.Infomations)
@@ -117,23 +117,28 @@ namespace Connectome
                     {
                         alpha = (byte)(alpha * oparat);
                         float elemsize = (float)(sizeoder * ((1 - sizemin) * zodr + sizemin));
-                        RectangleF rect = new RectangleF(x - elemsize / 2, y - elemsize / 2, elemsize, elemsize);
                         byte valuebrightness = (byte)(byte.MaxValue * value);
                         byte sigbrightness = (byte)(byte.MaxValue * signal);
+                        RectangleF rect = new RectangleF(x - elemsize / 2, y - elemsize / 2, elemsize, elemsize);
                         Color c = Color.FromArgb(255, Color.Black);
                         switch (cell.Type)
                         {
                             case Field.Domain.CellInfomation.CellType.Synapse:
+                                rect = new RectangleF(x - elemsize / 2, y - elemsize / 2, elemsize, elemsize);
                                 c = Color.FromArgb(valuebrightness / 4, valuebrightness / 4, valuebrightness);
+                                g.FillEllipse(new SolidBrush(Color.FromArgb(alpha, c)), rect);
+                                g.DrawEllipse(new Pen(Color.FromArgb(alpha, Color.FromArgb(sigbrightness, 64, 64 + sigbrightness / 4))), rect);
                                 break;
                             case Field.Domain.CellInfomation.CellType.Sensor:
+                                rect = new RectangleF(x - 2, y - 2, 5, 5);
                                 c = Color.FromArgb(valuebrightness, 0, valuebrightness / 2);
+                                g.FillRectangle(new SolidBrush(Color.FromArgb(alpha, c)), rect);
+                                g.DrawRectangle(new Pen(Color.FromArgb(alpha / 4, Color.FromArgb(sigbrightness, 64, 64 + sigbrightness / 4)), 0.25f),
+                                    new Rectangle((int)rect.Location.X, (int)rect.Location.Y, (int)rect.Size.Width, (int)rect.Size.Height));
                                 break;
                             default:
                                 break;
                         }
-                        g.FillEllipse(new SolidBrush(Color.FromArgb(alpha, c)), rect);
-                        g.DrawEllipse(new Pen(Color.FromArgb(alpha, Color.FromArgb(sigbrightness, 64, 64 + sigbrightness / 4))), rect);
                     }
                 }
             }

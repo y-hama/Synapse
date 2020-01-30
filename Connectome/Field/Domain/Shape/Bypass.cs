@@ -16,6 +16,7 @@ namespace Connectome.Field.Domain.Shape
             }
         }
 
+        private int CollectionCount { get; set; } = 0;
 
         private Location Start { get; set; }
         private Location Center { get; set; }
@@ -72,19 +73,39 @@ namespace Connectome.Field.Domain.Shape
             }
         }
 
+        public override Location GetAlignmentLocation(int index)
+        {
+            throw new NotImplementedException();
+        }
+
         public override bool CheckBorder(ref Location loc)
         {
-            var _loc = loc;
-            RandomToArea(loc, out _loc);
-            loc = _loc;
-
-            double t = (Start + loc) * v;
-            Location H = Start + t * v;
-            double dist = H.DistanceTo(loc);
-            if (dist < Thickness)
-            { return true; }
+            if (CollectionCount == 0)
+            {
+                loc = Start;
+                CollectionCount++;
+                return true;
+            }
+            else if (CollectionCount == 1)
+            {
+                loc = End;
+                CollectionCount++;
+                return true;
+            }
             else
-            { return false; }
+            {
+                var _loc = loc;
+                RandomToArea(loc, out _loc);
+                loc = _loc;
+
+                double t = (Start + loc) * v;
+                Location H = Start + t * v;
+                double dist = H.DistanceTo(loc);
+                if (dist < Thickness)
+                { CollectionCount++; return true; }
+                else
+                { return false; }
+            }
         }
     }
 }

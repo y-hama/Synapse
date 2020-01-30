@@ -10,7 +10,7 @@ namespace Connectome.Field.Domain.Sensor
     class RandomPulser : SensorDomain
     {
         public RandomPulser(Location center, Shape.ShapeCore shape, int count)
-            : base(center, shape, count)
+            : base(center, shape, count, false)
         {
 
         }
