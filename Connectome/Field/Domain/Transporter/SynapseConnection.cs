@@ -97,23 +97,28 @@ namespace Connectome.Field.Domain.Transporter
 
                 if (state[idx] != 3)
                 {
-                    float sum = 0;
-                    if (ptldiff > 0)
+                    if (dp > potential[idx])
                     {
-                        for (int i = 0; i < count; i++)
-                        {
-                            tid = (int)connectionIndex[start + i];
-                            weight[start + i] += activity[tid] * (potential[tid] - ptlmin) / ptldiff;
-                            sum += weight[start + i];
-                        }
-                        if (sum > 1)
+                        float sum = 0;
+                        if (ptldiff > 0)
                         {
                             for (int i = 0; i < count; i++)
                             {
-                                weight[start + i] /= sum;
+                                tid = (int)connectionIndex[start + i];
+                                weight[start + i] += activity[tid] * (potential[tid] - ptlmin) / ptldiff;
+                                sum += weight[start + i];
+                            }
+                            if (sum > 1)
+                            {
+                                for (int i = 0; i < count; i++)
+                                {
+                                    weight[start + i] /= sum;
+                                }
                             }
                         }
                     }
+                    else
+                    { }
                 }
 
                 if (value[idx] > 0.75)

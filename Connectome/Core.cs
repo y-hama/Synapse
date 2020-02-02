@@ -258,12 +258,14 @@ namespace Connectome
         #region Connectome Creator
         private static void CreateConnectome()
         {
-            int width = 80, height = 60, s1depth = 50;
-            //AddField(new Receptor(new Field.Domain.Sensor.Vision(new Location(), width, height)));
+            int cntdef = 300;
+            int width = 160, height = 120, s1depth = 50;
+            //AddField(new Receptor(new Field.Domain.Sensor.Vision(new Location(0, 0, 0), width, height)));
             AddField(new Receptor(new Field.Domain.Sensor.DiffVision(new Location(0, 0, 0), width, height)));
-            AddField(new Area(new Field.Domain.Transporter.SynapseConnection(new Location(0, 0, s1depth / 2), new Rectangular(width, height, s1depth), 4000, 8)));
-            //AddField(new Area(new Field.Domain.Transporter.SynapseConnection(new Location(0, 0, s1depth), new Rectangular(2 * width, 2 * height, s1depth), 1000, 6)));
-            //AddField(new Area(new Field.Domain.Transporter.SynapseConnection(new Location(0, 0, 2.5 * s1depth), new EllipseSurface(width), 2000, 7)));
+            //AddField(new Area(new Field.Domain.Transporter.SynapseConnection(new Location(0, 0, 0), new Rectangular(width, height, 1), 1000, 8)));
+            AddField(new Area(new Field.Domain.Transporter.SynapseConnection(new Location(0, 0, s1depth / 2), new Rectangular(width, height, s1depth), cntdef, 8)));
+            AddField(new Area(new Field.Domain.Transporter.SynapseConnection(new Location(0, 0, s1depth), new Rectangular(2 * width, 2 * height, s1depth), cntdef, 6)));
+            AddField(new Area(new Field.Domain.Transporter.SynapseConnection(new Location(0, 0, 3 * s1depth), new EllipseSurface(width / 2), cntdef, 7)));
 
         }
         #endregion

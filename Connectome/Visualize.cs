@@ -70,7 +70,7 @@ namespace Connectome
                 double far = z_order.Max();
                 double areasize = far == near ? 1 : far - near;
 
-                double sizeoder = Math.Max(10, size / 100), sizemin = 0.75;
+                double sizeoder = Math.Max(5, size / 100), sizemin = 0.75;
 
                 Pen linePen = new Pen(Color.FromArgb(128, 128, 128));
                 foreach (var cell in e.Infomations)
@@ -82,7 +82,7 @@ namespace Connectome
                     double value = (Math.Max(0, Math.Min(1, cell.Value)));
                     double signal = (Math.Max(0, Math.Min(1, cell.Signal)));
                     double zodr = (1 - itemorder);
-                    byte alpha = (byte)(zodr * byte.MaxValue);
+                    byte alpha = (byte)((zodr * 0.95 + 0.05) * byte.MaxValue);
 
                     double oparat = 1;
                     if (drawConnectEdge)
